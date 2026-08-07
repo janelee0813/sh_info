@@ -749,8 +749,14 @@
     border-radius: 12px;
   }
   .btn-submit:hover { background: var(--navy-deep); }
+  .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
   :root[data-theme="dark"] .btn-submit,
   html:not([data-theme="light"]) .btn-submit { background: var(--mint); color: #06231A; }
+  .form-error {
+    color: #C0392B;
+    font-size: 12.5px;
+    margin: -8px 0 16px;
+  }
 
   .form-success { text-align: center; padding: 20px 0; }
   .form-success .icon {
@@ -1125,7 +1131,9 @@
           <label for="consent">개인정보 수집 및 이용에 동의합니다. 수집된 정보는 사업설명회 초청 및 상담 목적으로만 사용됩니다. *</label>
         </div>
 
-        <button type="submit" class="btn-submit">초청장 신청 제출</button>
+        <p id="formError" class="form-error" hidden>제출 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요.</p>
+
+        <button type="submit" class="btn-submit" id="submitBtn">초청장 신청 제출</button>
       </form>
     </div>
 
@@ -1142,6 +1150,9 @@
 
 <script>
 (function () {
+  var SUPABASE_URL = "https://cbrowpkzgvomnrbyiadd.supabase.co";
+  var SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNicm93cGt6Z3ZvbW5yYnlpYWRkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYwNzM2NTgsImV4cCI6MjEwMTY0OTY1OH0.nAGpSLkvAiqwvZ3fARBrsHrZbgmzcCFGxSIVYrB5wDA";
+
   var nav = document.getElementById('nav');
   window.addEventListener('scroll', function () {
     nav.classList.toggle('scrolled', window.scrollY > 40);
@@ -1241,11 +1252,52 @@
   var formView = document.getElementById('formView');
   var successView = document.getElementById('successView');
   var closeSuccess = document.getElementById('closeSuccess');
+  var submitBtn = document.getElementById('submitBtn');
+  var formError = document.getElementById('formError');
 
   form.addEventListener('submit', function (e) {
     e.preventDefault();
-    formView.hidden = true;
-    successView.hidden = false;
+    formError.hidden = true;
+    submitBtn.disabled = true;
+    submitBtn.textContent = '제출 중...';
+
+    var interests = Array.prototype.slice
+      .call(form.querySelectorAll('input[name="interest"]:checked'))
+      .map(function (el) { return el.value; });
+
+    var payload = {
+      company: form.company.value.trim(),
+      manager_name: form.manager.value.trim(),
+      position: form.position.value.trim() || null,
+      phone: form.phone.value.trim(),
+      email: form.email.value.trim(),
+      headcount: form.headcount.value,
+      interests: interests,
+      consent: form.consent ? form.consent.checked : document.getElementById('consent').checked
+    };
+
+    fetch(SUPABASE_URL + '/rest/v1/applications', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify(payload)
+    })
+      .then(function (res) {
+        if (!res.ok) throw new Error('request failed: ' + res.status);
+        formView.hidden = true;
+        successView.hidden = false;
+      })
+      .catch(function () {
+        formError.hidden = false;
+      })
+      .finally(function () {
+        submitBtn.disabled = false;
+        submitBtn.textContent = '초청장 신청 제출';
+      });
   });
   closeSuccess.addEventListener('click', function () {
     closeModal();
