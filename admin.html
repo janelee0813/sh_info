@@ -6,7 +6,6 @@
 <meta name="robots" content="noindex, nofollow" />
 <title>참여신청 관리자 | 마곡도시개발지구 복합용지</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Freesentation/paperlogy@main/Paperlogy.css">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root {
     --bg: #0B0D10;
@@ -291,10 +290,6 @@
   var SUPABASE_URL = "https://cbrowpkzgvomnrbyiadd.supabase.co";
   var SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNicm93cGt6Z3ZvbW5yYnlpYWRkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYwNzM2NTgsImV4cCI6MjEwMTY0OTY1OH0.nAGpSLkvAiqwvZ3fARBrsHrZbgmzcCFGxSIVYrB5wDA";
 
-  var ADMIN_EMAIL = "admin@sh-magok.local";
-
-  var client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
   var loginScreen = document.getElementById('loginScreen');
   var dashScreen = document.getElementById('dashScreen');
   var loginForm = document.getElementById('loginForm');
@@ -302,15 +297,16 @@
   var loginError = document.getElementById('loginError');
 
   var allRows = [];
+  var currentPassword = '';
 
   function showDashboard() {
     loginScreen.hidden = true;
     dashScreen.style.display = 'block';
-    loadApplications();
   }
   function showLogin() {
     dashScreen.style.display = 'none';
     loginScreen.hidden = false;
+    currentPassword = '';
   }
 
   loginForm.addEventListener('submit', function (e) {
@@ -320,20 +316,22 @@
     loginBtn.textContent = '로그인 중...';
     var password = document.getElementById('loginPassword').value;
 
-    client.auth.signInWithPassword({ email: ADMIN_EMAIL, password: password }).then(function (res) {
+    fetchApplications(password).then(function (rows) {
       loginBtn.disabled = false;
       loginBtn.textContent = '로그인';
-      if (res.error) {
-        loginError.hidden = false;
-        return;
-      }
+      currentPassword = password;
+      allRows = rows;
       showDashboard();
+      renderTable(filterRows(document.getElementById('searchInput').value));
+      renderStats(allRows);
+    }).catch(function () {
+      loginBtn.disabled = false;
+      loginBtn.textContent = '로그인';
+      loginError.hidden = false;
     });
   });
 
-  document.getElementById('logoutBtn').addEventListener('click', function () {
-    client.auth.signOut().then(function () { showLogin(); });
-  });
+  document.getElementById('logoutBtn').addEventListener('click', showLogin);
 
   document.getElementById('refreshBtn').addEventListener('click', loadApplications);
 
@@ -356,22 +354,34 @@
     });
   }
 
+  function fetchApplications(password) {
+    return fetch(SUPABASE_URL + '/rest/v1/rpc/get_applications', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': 'Bearer ' + SUPABASE_ANON_KEY
+      },
+      body: JSON.stringify({ input_password: password })
+    }).then(function (res) {
+      if (!res.ok) throw new Error('unauthorized');
+      return res.json();
+    });
+  }
+
   function loadApplications() {
     document.getElementById('loadingState').hidden = false;
     document.getElementById('emptyState').hidden = true;
-    client.from('applications').select('*').order('created_at', { ascending: false }).then(function (res) {
+    fetchApplications(currentPassword).then(function (rows) {
       document.getElementById('loadingState').hidden = true;
-      if (res.error) {
-        document.getElementById('emptyState').textContent = '데이터를 불러오지 못했습니다: ' + res.error.message;
-        document.getElementById('emptyState').hidden = false;
-        allRows = [];
-        renderTable(allRows);
-        renderStats(allRows);
-        return;
-      }
-      allRows = res.data || [];
+      allRows = rows || [];
       renderTable(filterRows(document.getElementById('searchInput').value));
       renderStats(allRows);
+    }).catch(function () {
+      document.getElementById('loadingState').hidden = true;
+      document.getElementById('emptyState').textContent = '데이터를 불러오지 못했습니다. 다시 로그인해주세요.';
+      document.getElementById('emptyState').hidden = false;
+      showLogin();
     });
   }
 
@@ -456,15 +466,6 @@
     URL.revokeObjectURL(url);
   }
 
-  client.auth.getSession().then(function (res) {
-    if (res.data && res.data.session) {
-      showDashboard();
-    }
-  });
-
-  client.auth.onAuthStateChange(function (event, session) {
-    if (event === 'SIGNED_OUT') showLogin();
-  });
 })();
 </script>
 
