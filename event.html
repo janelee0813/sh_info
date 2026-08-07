@@ -1,0 +1,358 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>이벤트 럭키드로우 | 마곡도시개발지구 복합용지</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Freesentation/paperlogy@main/Paperlogy.css">
+<style>
+  :root {
+    --bg: #0B0D10;
+    --bg-raise: #15181D;
+    --ink: #F4F6F8;
+    --ink-soft: #9AA4B2;
+    --lime: #CFF24C;
+    --lime-strong: #9BC200;
+    --blue: #3D74F2;
+    --line: rgba(244,246,248,0.12);
+    --font-display: "Paperlogy", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    --font-utility: ui-monospace, "SF Mono", "Roboto Mono", "Consolas", monospace;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    height: 100%;
+    background: #000;
+    overflow: hidden;
+    font-family: var(--font-display);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .stage-outer {
+    position: fixed;
+    inset: 0;
+    background: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .stage {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    max-width: calc(100vh * 16 / 9);
+    max-height: calc(100vw * 9 / 16);
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    background:
+      radial-gradient(46% 42% at 85% 8%, rgba(207,242,76,0.14), transparent 65%),
+      radial-gradient(40% 40% at 6% 92%, rgba(61,116,242,0.16), transparent 65%),
+      var(--bg);
+  }
+
+  .stage-header {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    z-index: 5;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: clamp(16px, 3vh, 34px) 20px clamp(10px, 2vh, 18px);
+    text-align: center;
+    pointer-events: none;
+  }
+  .event-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-utility);
+    font-size: clamp(10px, 1.1vw, 13px);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink);
+    background: rgba(244,246,248,0.07);
+    border: 1px solid var(--line);
+    padding: 6px 16px;
+    border-radius: 999px;
+  }
+  .event-eyebrow .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--lime);
+    animation: pulse 1.6s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.7); }
+  }
+  .event-title {
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    font-size: clamp(22px, 4vw, 44px);
+    margin: 0;
+  }
+  .event-title .lime { color: var(--lime); }
+
+  canvas#ballCanvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  .legend {
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    z-index: 5;
+    display: flex;
+    justify-content: center;
+    gap: clamp(10px, 1.6vw, 28px);
+    flex-wrap: wrap;
+    padding: clamp(12px, 2vh, 22px) clamp(14px, 2vw, 32px);
+    background: linear-gradient(180deg, transparent, rgba(0,0,0,0.55) 40%, rgba(0,0,0,0.72));
+    pointer-events: none;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: clamp(11px, 1.15vw, 15px);
+    color: var(--ink-soft);
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  .legend-swatch {
+    width: clamp(12px, 1.4vw, 18px);
+    height: clamp(12px, 1.4vw, 18px);
+    border-radius: 50%;
+    flex: none;
+    box-shadow: 0 0 10px rgba(0,0,0,0.4);
+  }
+  .legend-item strong {
+    color: var(--ink);
+    font-weight: 800;
+  }
+  .legend-item .count {
+    font-family: var(--font-utility);
+    font-variant-numeric: tabular-nums;
+    color: var(--lime);
+    font-weight: 700;
+  }
+</style>
+</head>
+<body>
+
+<div class="stage-outer">
+  <div class="stage" id="stage">
+    <div class="stage-header">
+      <span class="event-eyebrow"><span class="dot"></span>EVENT · LUCKY DRAW</span>
+      <h1 class="event-title">참여신청 <span class="lime">경품 추첨</span> 이벤트</h1>
+    </div>
+
+    <canvas id="ballCanvas" aria-label="경품 구슬이 떠다니는 애니메이션"></canvas>
+
+    <div class="legend" id="legend"></div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var TIERS = [
+    { key: 'first',  rank: '1등', name: '에어팟 프로', count: 1,  radius: 96, color: '#CFF24C', glow: 'rgba(207,242,76,0.6)',  labelDark: true  },
+    { key: 'second', rank: '2등', name: '헤드셋',       count: 3,  radius: 68, color: '#3D74F2', glow: 'rgba(61,116,242,0.55)', labelDark: false },
+    { key: 'third',  rank: '3등', name: '손선풍기',     count: 10, radius: 48, color: '#9BC200', glow: 'rgba(155,194,0,0.5)',   labelDark: true  },
+    { key: 'gift',   rank: '',   name: '기념품',        count: 40, radius: 25, color: '#5A6472', glow: 'rgba(90,100,114,0.35)', labelDark: false }
+  ];
+
+  var W = 1600, H = 900;
+  var HEADER_SAFE = 190;
+  var FOOTER_SAFE = 120;
+  var SIDE_SAFE = 16;
+
+  var canvas = document.getElementById('ballCanvas');
+  var ctx = canvas.getContext('2d');
+  var stage = document.getElementById('stage');
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var speedFactor = reduceMotion ? 0.35 : 1;
+
+  function hexToRgb(hex) {
+    var v = hex.replace('#', '');
+    return {
+      r: parseInt(v.substring(0, 2), 16),
+      g: parseInt(v.substring(2, 4), 16),
+      b: parseInt(v.substring(4, 6), 16)
+    };
+  }
+  function shade(hex, amt) {
+    var c = hexToRgb(hex);
+    var f = function (ch) {
+      var v = Math.round(ch + (amt > 0 ? (255 - ch) * amt : ch * amt));
+      return Math.max(0, Math.min(255, v));
+    };
+    return 'rgb(' + f(c.r) + ',' + f(c.g) + ',' + f(c.b) + ')';
+  }
+
+  var balls = [];
+
+  function buildBalls() {
+    balls = [];
+    TIERS.forEach(function (tier) {
+      for (var i = 0; i < tier.count; i++) {
+        var r = tier.radius;
+        var placed = false;
+        var x, y, tries = 0;
+        while (!placed && tries < 200) {
+          x = SIDE_SAFE + r + Math.random() * (W - 2 * SIDE_SAFE - 2 * r);
+          y = HEADER_SAFE + r + Math.random() * (H - HEADER_SAFE - FOOTER_SAFE - 2 * r);
+          placed = true;
+          for (var j = 0; j < balls.length; j++) {
+            var b = balls[j];
+            var dx = b.x - x, dy = b.y - y;
+            if (Math.sqrt(dx * dx + dy * dy) < b.r + r + 4) { placed = false; break; }
+          }
+          tries++;
+        }
+        var angle = Math.random() * Math.PI * 2;
+        var speed = (70 + Math.random() * 70) * (1 + (100 - r) / 260);
+        balls.push({
+          x: x, y: y, r: r,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed,
+          mass: r * r,
+          color: tier.color,
+          glow: tier.glow,
+          rank: tier.rank,
+          name: tier.name,
+          showLabel: tier.key !== 'gift',
+          labelDark: tier.labelDark
+        });
+      }
+    });
+  }
+
+  function resolveWallCollisions(b) {
+    var left = SIDE_SAFE + b.r, right = W - SIDE_SAFE - b.r;
+    var top = HEADER_SAFE + b.r, bottom = H - FOOTER_SAFE - b.r;
+    if (b.x < left) { b.x = left; b.vx = Math.abs(b.vx); }
+    if (b.x > right) { b.x = right; b.vx = -Math.abs(b.vx); }
+    if (b.y < top) { b.y = top; b.vy = Math.abs(b.vy); }
+    if (b.y > bottom) { b.y = bottom; b.vy = -Math.abs(b.vy); }
+  }
+
+  function resolveBallCollisions() {
+    for (var i = 0; i < balls.length; i++) {
+      for (var j = i + 1; j < balls.length; j++) {
+        var a = balls[i], b = balls[j];
+        var dx = b.x - a.x, dy = b.y - a.y;
+        var dist = Math.sqrt(dx * dx + dy * dy);
+        var minDist = a.r + b.r;
+        if (dist > 0 && dist < minDist) {
+          var nx = dx / dist, ny = dy / dist;
+          var overlap = (minDist - dist) / 2;
+          a.x -= nx * overlap; a.y -= ny * overlap;
+          b.x += nx * overlap; b.y += ny * overlap;
+
+          var rvx = b.vx - a.vx, rvy = b.vy - a.vy;
+          var velAlongNormal = rvx * nx + rvy * ny;
+          if (velAlongNormal < 0) {
+            var m1 = a.mass, m2 = b.mass;
+            var impulse = (-2 * velAlongNormal) / (1 / m1 + 1 / m2);
+            var ix = impulse * nx, iy = impulse * ny;
+            a.vx -= ix / m1; a.vy -= iy / m1;
+            b.vx += ix / m2; b.vy += iy / m2;
+          }
+        }
+      }
+    }
+  }
+
+  function drawBall(b) {
+    var grad = ctx.createRadialGradient(
+      b.x - b.r * 0.35, b.y - b.r * 0.4, b.r * 0.08,
+      b.x, b.y, b.r
+    );
+    grad.addColorStop(0, shade(b.color, 0.55));
+    grad.addColorStop(0.55, b.color);
+    grad.addColorStop(1, shade(b.color, -0.35));
+
+    ctx.save();
+    ctx.shadowColor = b.glow;
+    ctx.shadowBlur = b.r * 0.7;
+    ctx.beginPath();
+    ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
+    ctx.fillStyle = grad;
+    ctx.fill();
+    ctx.restore();
+
+    ctx.beginPath();
+    ctx.ellipse(b.x - b.r * 0.32, b.y - b.r * 0.36, b.r * 0.3, b.r * 0.17, -0.6, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(255,255,255,0.32)';
+    ctx.fill();
+
+    if (b.showLabel) {
+      ctx.fillStyle = b.labelDark ? '#0B0D10' : '#F4F6F8';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      var rankSize = Math.max(11, b.r * 0.34);
+      var nameSize = Math.max(9, b.r * 0.22);
+      ctx.font = '900 ' + rankSize + 'px Paperlogy, sans-serif';
+      ctx.fillText(b.rank, b.x, b.y - rankSize * 0.55);
+      ctx.font = '700 ' + nameSize + 'px Paperlogy, sans-serif';
+      ctx.fillText(b.name, b.x, b.y + nameSize * 0.75);
+    }
+  }
+
+  function resizeCanvas() {
+    var dpr = window.devicePixelRatio || 1;
+    var rect = stage.getBoundingClientRect();
+    canvas.width = Math.round(rect.width * dpr);
+    canvas.height = Math.round(rect.height * dpr);
+    ctx.setTransform(dpr * (rect.width / W), 0, 0, dpr * (rect.height / H), 0, 0);
+  }
+
+  var lastTs = null;
+  function tick(ts) {
+    if (lastTs === null) lastTs = ts;
+    var dt = Math.min((ts - lastTs) / 1000, 0.033) * speedFactor;
+    lastTs = ts;
+
+    balls.forEach(function (b) {
+      b.x += b.vx * dt;
+      b.y += b.vy * dt;
+      resolveWallCollisions(b);
+    });
+    resolveBallCollisions();
+
+    ctx.clearRect(0, 0, W, H);
+    balls
+      .slice()
+      .sort(function (a, b) { return a.r - b.r; })
+      .forEach(drawBall);
+
+    requestAnimationFrame(tick);
+  }
+
+  function buildLegend() {
+    var legend = document.getElementById('legend');
+    legend.innerHTML = TIERS.map(function (t) {
+      var label = t.rank ? (t.rank + ' · ' + t.name) : t.name;
+      return '<div class="legend-item">' +
+        '<span class="legend-swatch" style="background:' + t.color + '"></span>' +
+        '<strong>' + label + '</strong> <span class="count">' + t.count + '개</span>' +
+        '</div>';
+    }).join('');
+  }
+
+  buildBalls();
+  buildLegend();
+  resizeCanvas();
+  window.addEventListener('resize', resizeCanvas);
+  requestAnimationFrame(tick);
+})();
+</script>
+
+</body>
+</html>
