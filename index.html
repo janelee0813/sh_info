@@ -485,15 +485,21 @@
 
   /* ---------- Location / map ---------- */
   .location-layout {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 56px;
-    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: 44px;
     margin-top: 60px;
   }
-  @media (max-width: 900px) { .location-layout { grid-template-columns: 1fr; } }
-  .access-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 24px; }
-  .access-list li { display: flex; gap: 16px; align-items: flex-start; }
+  .access-grid {
+    list-style: none;
+    margin: 0; padding: 0;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 28px;
+  }
+  @media (max-width: 900px) { .access-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 560px) { .access-grid { grid-template-columns: 1fr; } }
+  .access-grid li { display: flex; gap: 14px; align-items: flex-start; }
   .access-icon {
     flex: none;
     width: 40px; height: 40px;
@@ -504,6 +510,7 @@
   }
   .access-title { font-weight: 800; color: var(--ink-dark); margin-bottom: 3px; }
   .access-desc { color: var(--ink-dark-soft); font-size: 0.94rem; font-weight: 500; }
+
   .map-frame {
     background: var(--bg-light-raise);
     border: 1px solid var(--line-dark);
@@ -511,6 +518,9 @@
     padding: 20px;
     box-shadow: 0 20px 50px rgba(11,13,16,0.08);
   }
+  .map-visual { position: relative; border-radius: 12px; overflow: hidden; }
+  .map-base-img { display: block; width: 100%; height: auto; }
+  .map-overlay-svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
   .map-caption {
     font-family: var(--font-utility);
     font-size: 11px;
@@ -519,53 +529,71 @@
     margin-top: 10px;
     text-align: center;
   }
+
+  /* 노선이 스스로 그려지는 효과 */
   .map-line {
-    stroke-dasharray: 800;
-    stroke-dashoffset: 800;
-    transition: stroke-dashoffset 1.6s cubic-bezier(.19,1,.22,1);
+    stroke-dasharray: 3200;
+    stroke-dashoffset: 3200;
+    transition: stroke-dashoffset 2.2s cubic-bezier(.19,1,.22,1);
   }
   .map-frame.in-view .map-line { stroke-dashoffset: 0; }
-  @media (prefers-reduced-motion: reduce) {
-    .map-line { stroke-dashoffset: 0; transition: none; }
-  }
-  .map-pin {
+  /* 그려진 노선 위로 흐르듯 움직이는 점선(열차가 지나가는 느낌) */
+  .map-line-flow {
+    stroke-dasharray: 16 14;
     opacity: 0;
-    transform: scale(0.5);
-    transform-origin: center;
-    transition: opacity 0.5s ease, transform 0.5s cubic-bezier(.34,1.56,.64,1);
-    transition-delay: 1.2s;
   }
-  .map-frame.in-view .map-pin { opacity: 1; transform: scale(1); }
-  @media (prefers-reduced-motion: reduce) {
-    .map-pin { opacity: 1; transform: none; transition: none; }
+  .map-frame.in-view .map-line-flow {
+    opacity: 0.95;
+    animation: mapLineFlow 1s linear infinite;
+    animation-delay: 2.4s;
   }
-  /* 마곡나루역 핀에서 신호가 퍼지는 듯한 핑 효과 */
-  .map-pin-ping {
+  @keyframes mapLineFlow { to { stroke-dashoffset: -60; } }
+  .map-dot {
+    opacity: 0;
+    transform: scale(0.4);
     transform-box: fill-box;
     transform-origin: center;
+    transition: opacity 0.5s ease, transform 0.5s cubic-bezier(.34,1.56,.64,1);
+  }
+  .map-frame.in-view .map-dot { opacity: 1; transform: scale(1); }
+  @media (prefers-reduced-motion: reduce) {
+    .map-line { stroke-dashoffset: 0 !important; transition: none !important; }
+    .map-line-flow { animation: none !important; opacity: 0 !important; }
+    .map-dot { opacity: 1 !important; transform: scale(1) !important; transition: none !important; }
+  }
+
+  /* 역/도로 이름표 */
+  .map-badge {
+    position: absolute;
+    transform: translate(-50%, -50%) scale(0.5);
     opacity: 0;
+    white-space: nowrap;
+    font-family: var(--font-display);
+    font-weight: 800;
+    color: #fff;
+    border-radius: 999px;
+    padding: 0.42em 0.85em;
+    font-size: clamp(7px, 1.05vw, 14px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    transition: opacity 0.5s ease, transform 0.5s cubic-bezier(.34,1.56,.64,1);
+    transition-delay: var(--d, 0s);
   }
-  .map-frame.in-view .map-pin-ping {
-    animation: mapPing 2.1s cubic-bezier(.19,1,.22,1) infinite;
-    animation-delay: 1.5s;
+  .map-frame.in-view .map-badge { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  .map-badge--purple { background: #8F4697; }
+  .map-badge--gold { background: #B8963C; }
+  .map-badge--road { background: #595757; font-weight: 700; font-size: clamp(7px, 0.95vw, 13px); }
+  .map-badge--airport-road { background: #2FA57F; font-size: clamp(8px, 1.15vw, 15px); padding: 0.5em 1.05em; }
+  .map-badge--main {
+    animation: mapBadgePulse 2.2s ease-in-out infinite;
+    animation-delay: 2.2s;
   }
-  @keyframes mapPing {
-    0% { transform: scale(1); opacity: 0.65; }
-    100% { transform: scale(3.2); opacity: 0; }
-  }
-  /* 복합용지(대상 부지)를 은은하게 강조하는 펄스 */
-  .map-site-pulse { opacity: 0.3; }
-  .map-frame.in-view .map-site-pulse {
-    animation: mapSitePulse 2.4s ease-in-out infinite;
-    animation-delay: 1.6s;
-  }
-  @keyframes mapSitePulse {
-    0%, 100% { opacity: 0.22; }
-    50% { opacity: 0.55; }
+  @keyframes mapBadgePulse {
+    0%, 100% { box-shadow: 0 4px 10px rgba(0,0,0,0.2), 0 0 0 0 rgba(184,150,60,0.55); }
+    50% { box-shadow: 0 4px 10px rgba(0,0,0,0.2), 0 0 0 9px rgba(184,150,60,0); }
   }
   @media (prefers-reduced-motion: reduce) {
-    .map-pin-ping { display: none; }
-    .map-frame.in-view .map-site-pulse { animation: none; opacity: 0.3; }
+    .map-badge { transition: none !important; opacity: 1 !important; transform: translate(-50%, -50%) !important; }
+    .map-badge--main { animation: none !important; }
   }
 
   /* ---------- Land conditions ---------- */
@@ -837,7 +865,51 @@
       </p>
     </div>
     <div class="location-layout">
-      <ul class="access-list reveal">
+      <div class="map-frame reveal" id="mapFrame">
+        <div class="map-visual">
+          <img class="map-base-img" src="assets/magok-map.png" alt="마곡도시개발지구 위치 및 복합용지 필지 안내도" />
+          <svg class="map-overlay-svg" viewBox="0 0 1500 1121" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+            <defs>
+              <marker id="greenArrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M0,0 L10,5 L0,10 z" fill="#2FA57F" />
+              </marker>
+            </defs>
+
+            <path class="map-line" style="transition-delay:0.1s" d="M336 148 C 300 210 220 260 183 318 C 140 385 60 480 45 600 C 40 618 60 630 90 635 C 160 642 250 646 317 646 C 420 655 540 668 649 676 C 760 682 880 686 988 689 C 1010 700 948 800 945 960 L 945 1121" stroke="#8F4697" stroke-width="7" fill="none" stroke-linecap="round" opacity="0.85" />
+            <path class="map-line-flow" style="transition-delay:0.1s" d="M336 148 C 300 210 220 260 183 318 C 140 385 60 480 45 600 C 40 618 60 630 90 635 C 160 642 250 646 317 646 C 420 655 540 668 649 676 C 760 682 880 686 988 689 C 1010 700 948 800 945 960 L 945 1121" stroke="#fff" stroke-width="2.2" fill="none" stroke-linecap="round" />
+
+            <path class="map-line" style="transition-delay:0.3s" d="M0 660 C 110 625 220 612 356 599 C 430 585 480 460 517 447 C 600 460 700 462 787 468 C 900 462 1020 425 1113 415 C 1220 425 1350 480 1500 660" stroke="#B8963C" stroke-width="7" fill="none" stroke-linecap="round" opacity="0.85" />
+            <path class="map-line-flow" style="transition-delay:0.3s" d="M0 660 C 110 625 220 612 356 599 C 430 585 480 460 517 447 C 600 460 700 462 787 468 C 900 462 1020 425 1113 415 C 1220 425 1350 480 1500 660" stroke="#fff" stroke-width="2.2" fill="none" stroke-linecap="round" />
+
+            <path class="map-line" style="transition-delay:0.5s" d="M1059 0 C 1000 90 950 200 900 300 C 875 355 850 400 838 438 L 874 468" stroke="#4A9FD9" stroke-width="5" fill="none" stroke-linecap="round" opacity="0.8" />
+            <path class="map-line-flow" style="transition-delay:0.5s" d="M1059 0 C 1000 90 950 200 900 300 C 875 355 850 400 838 438 L 874 468" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round" />
+
+            <path class="map-line" style="transition-delay:0.7s" d="M995 748 C 1060 728 1140 715 1225 725" stroke="#2FA57F" stroke-width="5" fill="none" stroke-linecap="round" marker-end="url(#greenArrow)" />
+
+            <circle class="map-dot" style="transition-delay:1.3s" cx="336" cy="148" r="6" fill="none" stroke="#8F4697" stroke-width="3" />
+            <circle class="map-dot" style="transition-delay:1.4s" cx="183" cy="318" r="6" fill="none" stroke="#8F4697" stroke-width="3" />
+            <circle class="map-dot" style="transition-delay:1.5s" cx="874" cy="468" r="7" fill="#4A9FD9" />
+          </svg>
+
+          <div class="map-badge map-badge--road" style="left:60.7%;top:4.6%;--d:0.9s;">올림픽대로</div>
+          <div class="map-badge map-badge--road" style="left:76.5%;top:11.1%;--d:1s;">강변북로</div>
+
+          <div class="map-badge map-badge--purple" style="left:10.2%;top:53.2%;--d:1.1s;">김포공항역</div>
+          <div class="map-badge map-badge--purple" style="left:21.1%;top:57.6%;--d:1.2s;">송정역</div>
+          <div class="map-badge map-badge--purple" style="left:43.3%;top:60.3%;--d:1.3s;">마곡역</div>
+          <div class="map-badge map-badge--purple" style="left:65.9%;top:61.5%;--d:1.4s;">발산역</div>
+
+          <div class="map-badge map-badge--gold" style="left:23.7%;top:53.4%;--d:1.5s;">공항시장역</div>
+          <div class="map-badge map-badge--gold" style="left:34.5%;top:39.9%;--d:1.6s;">신방화역</div>
+          <div class="map-badge map-badge--gold map-badge--main" style="left:52.5%;top:41.7%;--d:1.7s;">마곡나루역</div>
+          <div class="map-badge map-badge--gold" style="left:74.2%;top:37.0%;--d:1.8s;">양천향교역</div>
+
+          <div class="map-badge map-badge--airport-road" style="left:76.7%;top:63.6%;--d:1.9s;">공항대로</div>
+        </div>
+        <p class="map-caption">MAGOK ACCESS MAP · 실제 축척과 다를 수 있습니다</p>
+      </div>
+
+      <ul class="access-grid reveal">
         <li>
           <span class="access-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M4 17h16M6 17V9l6-5 6 5v8M9 17v-4h6v4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
           <div>
@@ -867,32 +939,6 @@
           </div>
         </li>
       </ul>
-      <div class="map-frame reveal" id="mapFrame">
-        <svg viewBox="0 0 400 320" width="100%" role="img" aria-label="마곡도시개발지구 주변 교통 요약도">
-          <rect x="0" y="0" width="400" height="320" rx="14" fill="none"/>
-          <path class="map-line" d="M20 250 C 90 240, 140 260, 210 230 S 340 190, 380 150" stroke="#C7CCD4" stroke-width="10" fill="none" opacity="0.5"/>
-          <path class="map-line" d="M40 20 C 60 90, 120 140, 130 220 S 150 300, 120 310" stroke="#9BC200" stroke-width="4" fill="none" style="transition-delay:0.2s"/>
-          <path class="map-line" d="M370 30 C 330 60, 300 120, 260 150 S 180 190, 60 200" stroke="#0B0D10" stroke-width="3" stroke-dasharray="2 10" fill="none" style="transition-delay:0.4s"/>
-          <g class="map-pin">
-            <circle class="map-pin-ping" cx="130" cy="220" r="7" fill="none" stroke="#9BC200" stroke-width="2"/>
-            <circle cx="130" cy="220" r="7" fill="#9BC200"/>
-            <text x="142" y="224" font-size="12" fill="currentColor" font-family="ui-monospace, monospace">마곡나루역</text>
-          </g>
-          <g class="map-pin" style="transition-delay:1.35s">
-            <circle cx="50" cy="230" r="6" fill="#0B0D10"/>
-            <text x="14" y="252" font-size="12" fill="currentColor" font-family="ui-monospace, monospace">김포공항</text>
-          </g>
-          <g class="map-pin" style="transition-delay:1.45s">
-            <circle cx="260" cy="150" r="6" fill="#0B0D10"/>
-            <text x="250" y="128" text-anchor="end" font-size="12" fill="currentColor" font-family="ui-monospace, monospace">올림픽대로</text>
-          </g>
-          <g class="map-pin" style="transition-delay:1.55s">
-            <rect class="map-site-pulse" x="150" y="255" width="60" height="34" rx="6" fill="#CFF24C"/>
-            <text x="158" y="276" font-size="12" fill="currentColor" font-family="ui-monospace, monospace">복합용지</text>
-          </g>
-        </svg>
-        <p class="map-caption">MAGOK ACCESS SUMMARY · 실제 축척과 다를 수 있습니다</p>
-      </div>
     </div>
   </div>
 </section>
