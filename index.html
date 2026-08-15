@@ -92,6 +92,8 @@
     gap: 2px;
     color: #fff;
     line-height: 1.3;
+    text-decoration: none;
+    cursor: pointer;
   }
   .nav-brand .org {
     font-family: var(--font-utility);
@@ -702,10 +704,10 @@
 
 <nav class="nav" id="nav">
   <div class="wrap nav-inner">
-    <div class="nav-brand">
+    <a class="nav-brand" href="#" id="navHomeLink">
       <span class="org">서울특별시 · SH서울주택도시개발공사</span>
       <span class="proj">마곡도시개발지구 복합용지</span>
-    </div>
+    </a>
     <ul class="nav-links">
       <li><a href="#why">왜 마곡인가</a></li>
       <li><a href="#neighbors">입주 기업</a></li>
@@ -882,7 +884,7 @@
           </g>
           <g class="map-pin" style="transition-delay:1.45s">
             <circle cx="260" cy="150" r="6" fill="#0B0D10"/>
-            <text x="266" y="146" font-size="12" fill="currentColor" font-family="ui-monospace, monospace">올림픽대로</text>
+            <text x="250" y="128" text-anchor="end" font-size="12" fill="currentColor" font-family="ui-monospace, monospace">올림픽대로</text>
           </g>
           <g class="map-pin" style="transition-delay:1.55s">
             <rect class="map-site-pulse" x="150" y="255" width="60" height="34" rx="6" fill="#CFF24C"/>
@@ -1004,12 +1006,27 @@
 
 <script>
 (function () {
+  // 새로고침해도 이전 스크롤 위치나 앵커(#해시)로 이동하지 않고 항상 맨 위에서 시작하게 한다.
+  if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+  window.scrollTo(0, 0);
+  if (window.location.hash) {
+    history.replaceState(null, '', window.location.pathname + window.location.search);
+  }
+
   var nav = document.getElementById('nav');
   window.addEventListener('scroll', function () {
     nav.classList.toggle('scrolled', window.scrollY > 40);
   }, { passive: true });
 
   var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  var navHomeLink = document.getElementById('navHomeLink');
+  if (navHomeLink) {
+    navHomeLink.addEventListener('click', function (e) {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' });
+    });
+  }
 
   // 스크롤로 화면에 들어오고 나갈 때마다 매번 다시 연출되도록 in-view 클래스를 토글한다
   // (한 번 보고 나면 끝나는 것이 아니라, 스크롤할 때마다 계속 효과가 재생된다).

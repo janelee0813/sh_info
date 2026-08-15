@@ -449,6 +449,35 @@
     return div.innerHTML;
   }
 
+  // 숫자만 남긴 뒤 서울(02)/휴대전화·기타 지역번호 자리수에 맞춰 하이픈을 자동으로 넣어준다.
+  function formatKoreanPhone(v) {
+    var d = (v || "").replace(/\D/g, "").slice(0, 11);
+    if (d.indexOf("02") === 0) {
+      if (d.length < 3) return d;
+      if (d.length < 6) return d.slice(0, 2) + "-" + d.slice(2);
+      if (d.length < 10) return d.slice(0, 2) + "-" + d.slice(2, 5) + "-" + d.slice(5);
+      return d.slice(0, 2) + "-" + d.slice(2, 6) + "-" + d.slice(6, 10);
+    }
+    if (d.length < 4) return d;
+    if (d.length < 7) return d.slice(0, 3) + "-" + d.slice(3);
+    if (d.length < 11) return d.slice(0, 3) + "-" + d.slice(3, 6) + "-" + d.slice(6);
+    return d.slice(0, 3) + "-" + d.slice(3, 7) + "-" + d.slice(7, 11);
+  }
+
+  // 커서 위치(입력 중이던 자리)를 최대한 유지하면서 입력창 값에 하이픈 서식을 적용한다.
+  function applyPhoneFormatting(input) {
+    var digitsBeforeCursor = input.value.slice(0, input.selectionStart).replace(/\D/g, "").length;
+    var formatted = formatKoreanPhone(input.value);
+    input.value = formatted;
+    var count = 0, pos = formatted.length;
+    for (var i = 0; i < formatted.length; i++) {
+      if (/\d/.test(formatted[i])) count++;
+      if (count === digitsBeforeCursor) { pos = i + 1; break; }
+    }
+    input.setSelectionRange(pos, pos);
+    return formatted;
+  }
+
   function isApplicantValid() {
     var a = state.applicant;
     return a.company.trim().length > 0 && a.name.trim().length > 0 &&
@@ -537,7 +566,7 @@
     ["company", "department", "name", "position", "phone", "email"].forEach(function (key) {
       var el = document.getElementById("f-" + key);
       el.addEventListener("input", function () {
-        state.applicant[key] = el.value;
+        state.applicant[key] = key === "phone" ? applyPhoneFormatting(el) : el.value;
         updateFooterButtonState();
       });
     });
@@ -602,7 +631,7 @@
       el.addEventListener("input", function () {
         var idx = parseInt(el.getAttribute("data-comp-idx"), 10);
         var key = el.getAttribute("data-comp-key");
-        state.companions[idx][key] = el.value;
+        state.companions[idx][key] = key === "phone" ? applyPhoneFormatting(el) : el.value;
         updateFooterButtonState();
       });
     });
