@@ -265,6 +265,38 @@
   }
   .btn-primary:hover { transform: translateY(-2px); background: var(--lime-strong); }
   .btn-primary:focus-visible { outline: 3px solid var(--lime); outline-offset: 3px; }
+
+  /* ---------- CTA 은은한 반짝임 (glow + shine sweep) ---------- */
+  .btn-apply, .btn-primary {
+    position: relative;
+    overflow: hidden;
+    animation: ctaGlow 2.8s ease-in-out infinite;
+  }
+  .btn-apply { --cta-shadow: 0 8px 24px rgba(207,242,76,0.25); }
+  .btn-primary { --cta-shadow: var(--shadow); }
+  @keyframes ctaGlow {
+    0%, 100% { box-shadow: var(--cta-shadow), 0 0 0 rgba(207,242,76,0); }
+    50% { box-shadow: var(--cta-shadow), 0 0 26px 3px rgba(207,242,76,0.55); }
+  }
+  .btn-apply::after, .btn-primary::after {
+    content: "";
+    position: absolute;
+    top: 0; left: -75%;
+    width: 45%; height: 100%;
+    background: linear-gradient(115deg, transparent, rgba(255,255,255,0.7), transparent);
+    transform: skewX(-18deg);
+    animation: ctaShine 3.2s ease-in-out infinite;
+    pointer-events: none;
+  }
+  @keyframes ctaShine {
+    0% { left: -75%; }
+    40%, 100% { left: 130%; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .btn-apply, .btn-primary { animation: none; }
+    .btn-apply::after, .btn-primary::after { content: none; }
+  }
+
   .hero-cta-note {
     font-size: 13px;
     color: var(--ink-soft);
@@ -495,6 +527,34 @@
   @media (prefers-reduced-motion: reduce) {
     .map-pin { opacity: 1; transform: none; transition: none; }
   }
+  /* 마곡나루역 핀에서 신호가 퍼지는 듯한 핑 효과 */
+  .map-pin-ping {
+    transform-box: fill-box;
+    transform-origin: center;
+    opacity: 0;
+  }
+  .map-frame.in-view .map-pin-ping {
+    animation: mapPing 2.1s cubic-bezier(.19,1,.22,1) infinite;
+    animation-delay: 1.5s;
+  }
+  @keyframes mapPing {
+    0% { transform: scale(1); opacity: 0.65; }
+    100% { transform: scale(3.2); opacity: 0; }
+  }
+  /* 복합용지(대상 부지)를 은은하게 강조하는 펄스 */
+  .map-site-pulse { opacity: 0.3; }
+  .map-frame.in-view .map-site-pulse {
+    animation: mapSitePulse 2.4s ease-in-out infinite;
+    animation-delay: 1.6s;
+  }
+  @keyframes mapSitePulse {
+    0%, 100% { opacity: 0.22; }
+    50% { opacity: 0.55; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .map-pin-ping { display: none; }
+    .map-frame.in-view .map-site-pulse { animation: none; opacity: 0.3; }
+  }
 
   /* ---------- Land conditions ---------- */
   .spec-table {
@@ -642,7 +702,6 @@
       <li><a href="#location">입지</a></li>
       <li><a href="#land">사업 개요</a></li>
       <li><a href="#schedule">일정</a></li>
-      <li><a href="event.html">이벤트</a></li>
     </ul>
     <a class="btn-apply" href="apply.html">참여신청</a>
   </div>
@@ -803,6 +862,7 @@
           <path class="map-line" d="M40 20 C 60 90, 120 140, 130 220 S 150 300, 120 310" stroke="#9BC200" stroke-width="4" fill="none" style="transition-delay:0.2s"/>
           <path class="map-line" d="M370 30 C 330 60, 300 120, 260 150 S 180 190, 60 200" stroke="#0B0D10" stroke-width="3" stroke-dasharray="2 10" fill="none" style="transition-delay:0.4s"/>
           <g class="map-pin">
+            <circle class="map-pin-ping" cx="130" cy="220" r="7" fill="none" stroke="#9BC200" stroke-width="2"/>
             <circle cx="130" cy="220" r="7" fill="#9BC200"/>
             <text x="142" y="224" font-size="12" fill="currentColor" font-family="ui-monospace, monospace">마곡나루역</text>
           </g>
@@ -815,7 +875,7 @@
             <text x="266" y="146" font-size="12" fill="currentColor" font-family="ui-monospace, monospace">올림픽대로</text>
           </g>
           <g class="map-pin" style="transition-delay:1.55s">
-            <rect x="150" y="255" width="60" height="34" rx="6" fill="#CFF24C" opacity="0.3"/>
+            <rect class="map-site-pulse" x="150" y="255" width="60" height="34" rx="6" fill="#CFF24C"/>
             <text x="158" y="276" font-size="12" fill="currentColor" font-family="ui-monospace, monospace">복합용지</text>
           </g>
         </svg>
@@ -858,7 +918,7 @@
       </div>
       <div class="spec-row">
         <div class="spec-key">문의처</div>
-        <div class="spec-val">SH서울주택도시개발공사 &nbsp;1600-3456 / 02-3410-7376 / 02-3410-7378</div>
+        <div class="spec-val">SH서울주택도시개발공사<br>1600-3456 / 02-3410-7376 / 02-3410-7378</div>
       </div>
     </div>
   </div>
@@ -941,14 +1001,13 @@
 
   var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+  // 스크롤로 화면에 들어오고 나갈 때마다 매번 다시 연출되도록 in-view 클래스를 토글한다
+  // (한 번 보고 나면 끝나는 것이 아니라, 스크롤할 때마다 계속 효과가 재생된다).
   var revealEls = document.querySelectorAll('.reveal');
   if ('IntersectionObserver' in window && !reduceMotion) {
     var io = new IntersectionObserver(function (entries) {
       entries.forEach(function (entry) {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('in-view');
-          io.unobserve(entry.target);
-        }
+        entry.target.classList.toggle('in-view', entry.isIntersecting);
       });
     }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
     revealEls.forEach(function (el) { io.observe(el); });
@@ -957,17 +1016,23 @@
   }
 
   var counters = document.querySelectorAll('[data-count-target]');
+  var counterTokens = new WeakMap();
   if ('IntersectionObserver' in window) {
     var co = new IntersectionObserver(function (entries) {
       entries.forEach(function (entry) {
-        if (!entry.isIntersecting) return;
         var el = entry.target;
+        var myToken = {};
+        counterTokens.set(el, myToken);
+        if (!entry.isIntersecting) {
+          el.textContent = '0';
+          return;
+        }
         var target = parseInt(el.getAttribute('data-count-to'), 10);
-        co.unobserve(el);
         if (reduceMotion) { el.textContent = target; return; }
         var start = null;
         var duration = 1400;
         function step(ts) {
+          if (counterTokens.get(el) !== myToken) return; // 그사이 스크롤로 빠져나가면 멈춘다
           if (!start) start = ts;
           var progress = Math.min((ts - start) / duration, 1);
           var eased = 1 - Math.pow(1 - progress, 3);
@@ -983,10 +1048,7 @@
   var mapFrame = document.getElementById('mapFrame');
   var mapObserved = new IntersectionObserver(function (entries) {
     entries.forEach(function (entry) {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('in-view');
-        mapObserved.unobserve(entry.target);
-      }
+      entry.target.classList.toggle('in-view', entry.isIntersecting);
     });
   }, { threshold: 0.3 });
   if (mapFrame) mapObserved.observe(mapFrame);
@@ -994,10 +1056,7 @@
   var timeline = document.getElementById('timeline');
   var timelineObserved = new IntersectionObserver(function (entries) {
     entries.forEach(function (entry) {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('in-view');
-        timelineObserved.unobserve(entry.target);
-      }
+      entry.target.classList.toggle('in-view', entry.isIntersecting);
     });
   }, { threshold: 0.2 });
   if (timeline) timelineObserved.observe(timeline);
