@@ -253,7 +253,7 @@
 
   .chip-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr;
     gap: 8px;
   }
   .chip-btn {
@@ -433,7 +433,7 @@
   var state = {
     phase: "intro",
     applicant: { company: "", department: "", name: "", position: "", phone: "", email: "" },
-    companionCount: null, // 0 | 1 | 2
+    companionCount: null, // 0 | 1
     companions: [],
     interestedSite: null,
     privacyConsent: false,
@@ -586,8 +586,7 @@
   function renderCompanionsStep() {
     var counts = [
       { value: 0, label: "없음" },
-      { value: 1, label: "1명" },
-      { value: 2, label: "2명" }
+      { value: 1, label: "1명" }
     ];
     var chips = counts.map(function (c) {
       var sel = state.companionCount === c.value;
@@ -610,7 +609,7 @@
 
     return (
       '<h2 class="step-title">동반 참석자가<br />있으신가요?</h2>' +
-      '<p class="step-note">좌석 제한으로 인해 기업별 최대 3인(신청자 본인 포함)까지 참석 가능합니다.</p>' +
+      '<p class="step-note">좌석 제한으로 인해 기업별 최대 2인(신청자 본인 포함)까지 참석 가능합니다.</p>' +
       '<div class="chip-grid" id="companionCountGroup">' + chips + '</div>' +
       '<div style="margin-top:18px;">' + companionBlocks + '</div>'
     );
