@@ -99,12 +99,17 @@
   .step.step-in {
     animation: stepIn 0.35s ease-out forwards;
   }
+  /* 같은 단계 안에서 선택지만 바뀔 때는 다시 날아들어오지 않고 그대로 보이게 한다 */
+  .step.step-static {
+    opacity: 1;
+    transform: none;
+  }
   @keyframes stepIn {
     from { opacity: 0; transform: translateY(20px); }
     to { opacity: 1; transform: translateY(0); }
   }
   @media (prefers-reduced-motion: reduce) {
-    .step, .step.step-in { animation: none !important; opacity: 1 !important; transform: none !important; }
+    .step, .step.step-in, .step.step-static { animation: none !important; opacity: 1 !important; transform: none !important; }
   }
 
   .footer-region {
@@ -591,7 +596,7 @@
       var next = [];
       for (var i = 0; i < count; i++) next.push(state.companions[i] || { name: "", position: "", phone: "", email: "" });
       state.companions = next;
-      renderStep();
+      renderStep(false);
     });
     root.querySelectorAll("[data-comp-idx]").forEach(function (el) {
       el.addEventListener("input", function () {
@@ -620,7 +625,7 @@
       btn.addEventListener("click", function () {
         var v = btn.getAttribute("data-site");
         state.interestedSite = state.interestedSite === v ? null : v;
-        renderStep();
+        renderStep(false);
       });
     });
   }
@@ -642,7 +647,7 @@
   function bindConsentStep() {
     document.getElementById("consentToggle").addEventListener("click", function () {
       state.privacyConsent = !state.privacyConsent;
-      renderStep();
+      renderStep(false);
     });
   }
 
@@ -671,7 +676,7 @@
       var btn = e.target.closest("[data-choice]");
       if (!btn) return;
       state.marketingConsent = btn.getAttribute("data-choice") === "agree";
-      renderStep();
+      renderStep(false);
     });
   }
 
@@ -748,11 +753,12 @@
     submitting: bindConsent2Step
   };
 
-  function renderStep() {
+  function renderStep(animate) {
     var bodyHtml = STEP_RENDERERS[state.phase]();
+    var stepClass = animate ? "step step-in" : "step step-static";
     root.innerHTML =
       topBarHtml() +
-      '<div class="step-region"><div class="step step-in" id="stepInner">' + bodyHtml + '</div></div>' +
+      '<div class="step-region"><div class="' + stepClass + '" id="stepInner">' + bodyHtml + '</div></div>' +
       '<div class="footer-region">' + footerHtml() + '</div>';
 
     var backBtn = document.getElementById("backBtn");
@@ -790,12 +796,12 @@
     state.phase = phase;
     if (phase === "intro") { renderIntro(); return; }
     if (phase === "success") { renderSuccess(); return; }
-    renderStep();
+    renderStep(true);
   }
 
   function submitApplication() {
     state.phase = "submitting";
-    renderStep();
+    renderStep(true);
 
     var a = state.applicant;
     var payload = {
@@ -835,7 +841,7 @@
       .catch(function () {
         state.errorMessage = "제출 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요.";
         state.phase = "error";
-        renderStep();
+        renderStep(true);
       });
   }
 

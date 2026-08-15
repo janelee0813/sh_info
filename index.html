@@ -292,6 +292,16 @@
     0% { left: -75%; }
     40%, 100% { left: 130%; }
   }
+  /* 네비게이션의 참여신청 버튼은 크기가 작아 번지는 글로우 대신 테두리만 살짝 반짝이게 한다 */
+  .btn-apply-nav {
+    /* 기본 --cta-shadow(라임색 24px 블러)를 쓰지 않고, 은은한 중립 그림자로 바꿔 번짐을 없앤다 */
+    --cta-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    animation: ctaGlowBorder 2.4s ease-in-out infinite;
+  }
+  @keyframes ctaGlowBorder {
+    0%, 100% { box-shadow: var(--cta-shadow), 0 0 0 1.5px rgba(207,242,76,0.2); }
+    50% { box-shadow: var(--cta-shadow), 0 0 0 1.5px rgba(207,242,76,0.95); }
+  }
   @media (prefers-reduced-motion: reduce) {
     .btn-apply, .btn-primary { animation: none; }
     .btn-apply::after, .btn-primary::after { content: none; }
@@ -703,7 +713,7 @@
       <li><a href="#land">사업 개요</a></li>
       <li><a href="#schedule">일정</a></li>
     </ul>
-    <a class="btn-apply" href="apply.html">참여신청</a>
+    <a class="btn-apply btn-apply-nav" href="apply.html">참여신청</a>
   </div>
 </nav>
 
