@@ -123,6 +123,7 @@
     .nav-links { display: none; }
   }
   .btn-apply {
+    display: inline-block;
     appearance: none;
     border: none;
     cursor: pointer;
@@ -134,6 +135,7 @@
     padding: 13px 24px;
     border-radius: var(--radius-pill);
     letter-spacing: -0.01em;
+    text-decoration: none;
     box-shadow: 0 8px 24px rgba(207,242,76,0.25);
     transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
   }
@@ -245,6 +247,7 @@
     .hero-cta { opacity: 1; animation: none; }
   }
   .btn-primary {
+    display: inline-block;
     appearance: none;
     border: none;
     cursor: pointer;
@@ -256,6 +259,7 @@
     padding: 18px 32px;
     border-radius: var(--radius-pill);
     letter-spacing: -0.01em;
+    text-decoration: none;
     box-shadow: var(--shadow);
     transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
   }
@@ -621,155 +625,7 @@
   .footer-brand { color: #fff; font-weight: 800; font-size: 15px; }
   .footer-contact { display: flex; gap: 20px; flex-wrap: wrap; font-family: var(--font-utility); }
   .footer-bottom { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
-  .footer-disclaimer { max-width: 70ch; opacity: 0.7; line-height: 1.6; }
 
-  /* ---------- Modal ---------- */
-  .modal-overlay {
-    position: fixed; inset: 0;
-    background: rgba(0,0,0,0.7);
-    backdrop-filter: blur(4px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 24px;
-    z-index: 1000;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s ease;
-  }
-  .modal-overlay.open { opacity: 1; pointer-events: auto; }
-  .modal-card {
-    background: var(--bg-raise);
-    color: var(--ink);
-    width: 100%;
-    max-width: 560px;
-    max-height: 88vh;
-    overflow-y: auto;
-    border: 1px solid var(--line);
-    border-radius: 22px;
-    padding: 40px 36px;
-    box-shadow: 0 40px 100px rgba(0,0,0,0.6);
-    transform: translateY(24px) scale(0.98);
-    transition: transform 0.35s cubic-bezier(.19,1,.22,1);
-    position: relative;
-  }
-  .modal-overlay.open .modal-card { transform: translateY(0) scale(1); }
-  @media (prefers-reduced-motion: reduce) {
-    .modal-card, .modal-overlay { transition: none; }
-  }
-  .modal-close {
-    position: absolute;
-    top: 20px; right: 20px;
-    width: 34px; height: 34px;
-    border-radius: 50%;
-    border: 1px solid var(--line-strong);
-    background: transparent;
-    color: var(--ink);
-    cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 16px;
-  }
-  .modal-close:hover { background: var(--line); }
-  .modal-eyebrow {
-    font-family: var(--font-utility);
-    font-size: 11px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--lime);
-    font-weight: 700;
-    margin-bottom: 10px;
-  }
-  .modal-title { font-size: 1.6rem; font-weight: 900; margin: 0 0 8px; letter-spacing: -0.02em; }
-  .modal-sub { color: var(--ink-soft); font-size: 0.92rem; margin: 0 0 28px; font-weight: 500; }
-
-  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-  @media (max-width: 480px) { .form-grid { grid-template-columns: 1fr; } }
-  .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
-  .field.full { grid-column: 1 / -1; }
-  .field label { font-size: 12px; font-weight: 700; color: var(--ink-soft); }
-  .field input, .field select {
-    font-family: var(--font-display);
-    font-size: 14px;
-    padding: 11px 13px;
-    border-radius: 10px;
-    border: 1px solid var(--line-strong);
-    background: var(--bg);
-    color: var(--ink);
-  }
-  .field input:focus, .field select:focus {
-    outline: 2px solid var(--lime);
-    outline-offset: 1px;
-  }
-  .checkbox-group { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 4px; }
-  .chip-check {
-    position: relative;
-  }
-  .chip-check input {
-    position: absolute;
-    opacity: 0;
-    width: 100%; height: 100%;
-    cursor: pointer;
-    margin: 0;
-  }
-  .chip-check span {
-    display: inline-flex;
-    padding: 9px 15px;
-    border-radius: var(--radius-pill);
-    border: 1px solid var(--line-strong);
-    font-size: 13px;
-    color: var(--ink-soft);
-    transition: all 0.15s ease;
-  }
-  .chip-check input:checked + span {
-    background: var(--lime);
-    border-color: var(--lime);
-    color: #0B0D10;
-    font-weight: 700;
-  }
-  .chip-check input:focus-visible + span { outline: 2px solid var(--lime); outline-offset: 2px; }
-
-  .consent { display: flex; align-items: flex-start; gap: 10px; margin: 18px 0 24px; }
-  .consent input { margin-top: 3px; accent-color: var(--lime); }
-  .consent label { font-size: 12.5px; color: var(--ink-soft); line-height: 1.5; }
-
-  .btn-submit {
-    width: 100%;
-    appearance: none; border: none; cursor: pointer;
-    background: var(--lime);
-    color: #0B0D10;
-    font-family: var(--font-display);
-    font-weight: 800;
-    font-size: 15px;
-    padding: 17px;
-    border-radius: var(--radius-pill);
-    transition: background 0.2s ease;
-  }
-  .btn-submit:hover { background: var(--lime-strong); }
-  .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
-  .form-error {
-    color: #FF6B6B;
-    font-size: 12.5px;
-    margin: -8px 0 16px;
-  }
-
-  .form-success { text-align: center; padding: 20px 0; }
-  .form-success .icon {
-    width: 64px; height: 64px;
-    border-radius: 50%;
-    background: rgba(207,242,76,0.12);
-    color: var(--lime);
-    display: flex; align-items: center; justify-content: center;
-    margin: 0 auto 20px;
-  }
-  .form-success h3 { font-size: 1.3rem; margin: 0 0 10px; }
-  .form-success p { color: var(--ink-soft); font-size: 0.95rem; margin: 0 auto 24px; max-width: 40ch; font-weight: 500; }
-  .btn-secondary {
-    appearance: none; border: 1px solid var(--line-strong); background: transparent;
-    color: var(--ink); font-family: var(--font-display); font-weight: 700;
-    padding: 12px 22px; border-radius: var(--radius-pill); cursor: pointer;
-  }
-
-  [hidden] { display: none !important; }
 </style>
 </head>
 <body>
@@ -788,7 +644,7 @@
       <li><a href="#schedule">일정</a></li>
       <li><a href="event.html">이벤트</a></li>
     </ul>
-    <button class="btn-apply" data-open-modal>참여신청</button>
+    <a class="btn-apply" href="apply.html">참여신청</a>
   </div>
 </nav>
 
@@ -806,7 +662,7 @@
       성공한 기업들과 어깨를 나란히 할 마곡에 입성할 기회를, 프라이빗 사업설명회 및 현장투어에서 가장 먼저 안내해드립니다.
     </p>
     <div class="hero-cta">
-      <button class="btn-primary" data-open-modal>사업설명회 참여신청</button>
+      <a class="btn-primary" href="apply.html">사업설명회 참여신청</a>
       <span class="hero-cta-note">문의 1600-3456 · 02-3410-7376</span>
     </div>
   </div>
@@ -1053,7 +909,7 @@
       성공한 기업들이 이미 증명한 자리입니다. 참여신청 후 초청장을 받아 사업설명회에서
       토지 조건과 공급 절차를 가장 먼저 확인하세요.
     </p>
-    <button class="btn-apply" data-open-modal>참여신청 하기</button>
+    <a class="btn-apply" href="apply.html">참여신청 하기</a>
   </div>
 </section>
 
@@ -1071,93 +927,13 @@
       </div>
     </div>
     <div class="footer-bottom">
-      <p class="footer-disclaimer">
-        본 페이지는 마곡도시개발지구 복합용지 사업설명회 안내를 위한 제안용 디자인 시안(샘플)입니다.
-        실제 공급 조건, 일정, 참여 기업 정보는 사업설명회 및 공식 공고를 통해 확정됩니다.
-      </p>
-      <span>© 서울특별시 · SH서울주택도시개발공사 · <a href="admin.html" style="color:inherit;">관리자</a></span>
+      <span>Copyright ⓒ Seoul Housing &amp; Urban Development Corporation. · <a href="admin.html" style="color:inherit;">관리자</a></span>
     </div>
   </div>
 </footer>
 
-<div class="modal-overlay" id="modalOverlay">
-  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-    <button class="modal-close" id="modalClose" aria-label="닫기">✕</button>
-
-    <div id="formView">
-      <p class="modal-eyebrow">참여신청</p>
-      <h3 class="modal-title" id="modalTitle">사업설명회 초청장 신청</h3>
-      <p class="modal-sub">정보를 남겨주시면 검토 후 사업설명회 초청장을 이메일로 보내드립니다.</p>
-
-      <form id="applyForm">
-        <div class="form-grid">
-          <div class="field full">
-            <label for="company">기업명 *</label>
-            <input id="company" name="company" type="text" placeholder="예) 마곡산업(주)" required />
-          </div>
-          <div class="field">
-            <label for="manager">담당자명 *</label>
-            <input id="manager" name="manager" type="text" placeholder="홍길동" required />
-          </div>
-          <div class="field">
-            <label for="position">직급 / 부서</label>
-            <input id="position" name="position" type="text" placeholder="사업개발팀 팀장" />
-          </div>
-          <div class="field">
-            <label for="phone">연락처 *</label>
-            <input id="phone" name="phone" type="tel" placeholder="010-0000-0000" required />
-          </div>
-          <div class="field">
-            <label for="email">이메일 *</label>
-            <input id="email" name="email" type="email" placeholder="name@company.com" required />
-          </div>
-          <div class="field full">
-            <label for="headcount">사업설명회 참석 인원</label>
-            <select id="headcount" name="headcount">
-              <option value="1">1명</option>
-              <option value="2">2명</option>
-              <option value="3">3명</option>
-              <option value="4+">4명 이상</option>
-            </select>
-          </div>
-          <div class="field full">
-            <label>관심 분야</label>
-            <div class="checkbox-group">
-              <label class="chip-check"><input type="checkbox" name="interest" value="사옥 이전" /><span>사옥 이전</span></label>
-              <label class="chip-check"><input type="checkbox" name="interest" value="투자 검토" /><span>투자 검토</span></label>
-              <label class="chip-check"><input type="checkbox" name="interest" value="임대 문의" /><span>임대 문의</span></label>
-              <label class="chip-check"><input type="checkbox" name="interest" value="기타" /><span>기타</span></label>
-            </div>
-          </div>
-        </div>
-
-        <div class="consent">
-          <input type="checkbox" id="consent" required />
-          <label for="consent">개인정보 수집 및 이용에 동의합니다. 수집된 정보는 사업설명회 초청 및 상담 목적으로만 사용됩니다. *</label>
-        </div>
-
-        <p id="formError" class="form-error" hidden>제출 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요.</p>
-
-        <button type="submit" class="btn-submit" id="submitBtn">초청장 신청 제출</button>
-      </form>
-    </div>
-
-    <div id="successView" class="form-success" hidden>
-      <div class="icon">
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M5 12l5 5L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </div>
-      <h3>신청이 접수되었습니다</h3>
-      <p>담당자 검토 후 입력하신 이메일로 사업설명회 초청장을 보내드립니다.</p>
-      <button class="btn-secondary" id="closeSuccess">닫기</button>
-    </div>
-  </div>
-</div>
-
 <script>
 (function () {
-  var SUPABASE_URL = "https://cbrowpkzgvomnrbyiadd.supabase.co";
-  var SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNicm93cGt6Z3ZvbW5yYnlpYWRkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYwNzM2NTgsImV4cCI6MjEwMTY0OTY1OH0.nAGpSLkvAiqwvZ3fARBrsHrZbgmzcCFGxSIVYrB5wDA";
-
   var nav = document.getElementById('nav');
   window.addEventListener('scroll', function () {
     nav.classList.toggle('scrolled', window.scrollY > 40);
@@ -1225,93 +1001,6 @@
     });
   }, { threshold: 0.2 });
   if (timeline) timelineObserved.observe(timeline);
-
-  var overlay = document.getElementById('modalOverlay');
-  var openBtns = document.querySelectorAll('[data-open-modal]');
-  var closeBtn = document.getElementById('modalClose');
-  var lastFocused = null;
-
-  function openModal() {
-    lastFocused = document.activeElement;
-    overlay.classList.add('open');
-    document.body.style.overflow = 'hidden';
-    var firstField = document.getElementById('company');
-    if (firstField) firstField.focus();
-  }
-  function closeModal() {
-    overlay.classList.remove('open');
-    document.body.style.overflow = '';
-    if (lastFocused) lastFocused.focus();
-  }
-
-  openBtns.forEach(function (btn) { btn.addEventListener('click', openModal); });
-  closeBtn.addEventListener('click', closeModal);
-  overlay.addEventListener('click', function (e) {
-    if (e.target === overlay) closeModal();
-  });
-  document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape' && overlay.classList.contains('open')) closeModal();
-  });
-
-  var form = document.getElementById('applyForm');
-  var formView = document.getElementById('formView');
-  var successView = document.getElementById('successView');
-  var closeSuccess = document.getElementById('closeSuccess');
-  var submitBtn = document.getElementById('submitBtn');
-  var formError = document.getElementById('formError');
-
-  form.addEventListener('submit', function (e) {
-    e.preventDefault();
-    formError.hidden = true;
-    submitBtn.disabled = true;
-    submitBtn.textContent = '제출 중...';
-
-    var interests = Array.prototype.slice
-      .call(form.querySelectorAll('input[name="interest"]:checked'))
-      .map(function (el) { return el.value; });
-
-    var payload = {
-      company: form.company.value.trim(),
-      manager_name: form.manager.value.trim(),
-      position: form.position.value.trim() || null,
-      phone: form.phone.value.trim(),
-      email: form.email.value.trim(),
-      headcount: form.headcount.value,
-      interests: interests,
-      consent: document.getElementById('consent').checked
-    };
-
-    fetch(SUPABASE_URL + '/rest/v1/applications', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'apikey': SUPABASE_ANON_KEY,
-        'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
-        'Prefer': 'return=minimal'
-      },
-      body: JSON.stringify(payload)
-    })
-      .then(function (res) {
-        if (!res.ok) throw new Error('request failed: ' + res.status);
-        formView.hidden = true;
-        successView.hidden = false;
-      })
-      .catch(function () {
-        formError.hidden = false;
-      })
-      .finally(function () {
-        submitBtn.disabled = false;
-        submitBtn.textContent = '초청장 신청 제출';
-      });
-  });
-  closeSuccess.addEventListener('click', function () {
-    closeModal();
-    setTimeout(function () {
-      formView.hidden = false;
-      successView.hidden = true;
-      form.reset();
-    }, 300);
-  });
 })();
 </script>
 
