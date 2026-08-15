@@ -171,7 +171,7 @@
   .search-input:focus { outline: 2px solid var(--lime); outline-offset: 1px; }
 
   .table-scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: 14px; }
-  table { width: 100%; border-collapse: collapse; min-width: 920px; }
+  table { width: 100%; border-collapse: collapse; min-width: 1180px; }
   thead th {
     text-align: left;
     font-family: var(--font-utility);
@@ -194,18 +194,22 @@
   tbody tr:hover { background: rgba(244,246,248,0.03); }
   td.company { font-weight: 800; }
   td.muted { color: var(--ink-soft); }
-  .chip-row { display: flex; flex-wrap: wrap; gap: 6px; }
-  .chip {
-    font-size: 11.5px;
-    padding: 4px 10px;
-    border-radius: var(--radius-pill);
-    background: rgba(207,242,76,0.12);
-    color: var(--lime);
+  .consent-yes { color: var(--lime); font-weight: 700; }
+  .consent-no { color: var(--ink-soft); font-weight: 700; }
+  .btn-danger-sm {
+    appearance: none; cursor: pointer;
+    background: transparent;
+    border: 1px solid rgba(255,107,107,0.4);
+    color: var(--danger);
+    font-family: var(--font-display);
     font-weight: 700;
+    font-size: 12px;
+    padding: 7px 14px;
+    border-radius: var(--radius-pill);
     white-space: nowrap;
   }
-  .consent-yes { color: var(--lime); font-weight: 700; }
-  .consent-no { color: var(--danger); font-weight: 700; }
+  .btn-danger-sm:hover { background: rgba(255,107,107,0.12); border-color: var(--danger); }
+  .btn-danger-sm:disabled { opacity: 0.5; cursor: not-allowed; }
 
   .empty-state, .loading-state {
     text-align: center;
@@ -255,7 +259,7 @@
       <div class="stat-tile"><div class="num lime" id="statTotal">0</div><div class="label">전체 신청</div></div>
       <div class="stat-tile"><div class="num" id="statToday">0</div><div class="label">오늘 신청</div></div>
       <div class="stat-tile"><div class="num" id="statWeek">0</div><div class="label">최근 7일</div></div>
-      <div class="stat-tile"><div class="num" id="statConsent">0</div><div class="label">동의 완료</div></div>
+      <div class="stat-tile"><div class="num" id="statAttendees">0</div><div class="label">총 참석 예정 인원</div></div>
     </div>
 
     <div class="toolbar">
@@ -267,14 +271,16 @@
         <thead>
           <tr>
             <th>접수일시</th>
-            <th>기업명</th>
-            <th>담당자</th>
-            <th>직급 / 부서</th>
+            <th>기업(기관)</th>
+            <th>부서</th>
+            <th>성명</th>
+            <th>직함</th>
             <th>연락처</th>
             <th>이메일</th>
-            <th>참석인원</th>
-            <th>관심분야</th>
-            <th>동의</th>
+            <th>동반 참석자</th>
+            <th>관심 부지</th>
+            <th>정보제공 동의</th>
+            <th>관리</th>
           </tr>
         </thead>
         <tbody id="tableBody"></tbody>
@@ -289,6 +295,12 @@
 (function () {
   var SUPABASE_URL = "https://cbrowpkzgvomnrbyiadd.supabase.co";
   var SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNicm93cGt6Z3ZvbW5yYnlpYWRkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYwNzM2NTgsImV4cCI6MjEwMTY0OTY1OH0.nAGpSLkvAiqwvZ3fARBrsHrZbgmzcCFGxSIVYrB5wDA";
+
+  var SITE_LABELS = {
+    site_1: '① 발산역 대형(L4·L5·L6)',
+    site_2: '② 발산역 중소형(L5·L7)',
+    site_3: '③ 올림픽대로 중소형(L1·L2·L3)'
+  };
 
   var loginScreen = document.getElementById('loginScreen');
   var dashScreen = document.getElementById('dashScreen');
@@ -322,6 +334,7 @@
       currentPassword = password;
       allRows = rows;
       showDashboard();
+      document.getElementById('loadingState').hidden = true;
       renderTable(filterRows(document.getElementById('searchInput').value));
       renderStats(allRows);
     }).catch(function () {
@@ -404,19 +417,29 @@
     rows.forEach(function (r) {
       var tr = document.createElement('tr');
       var created = r.created_at ? new Date(r.created_at).toLocaleString('ko-KR') : '-';
-      var interests = Array.isArray(r.interests) ? r.interests : [];
-      var chips = interests.map(function (i) { return '<span class="chip">' + escapeHtml(i) + '</span>'; }).join('');
+      var companions = Array.isArray(r.companions) ? r.companions : [];
+      var companionCell = companions.length
+        ? companions.length + '명 (' + companions.map(function (c) { return escapeHtml(c.name || ''); }).join(', ') + ')'
+        : '-';
+      var siteLabel = r.interested_site ? (SITE_LABELS[r.interested_site] || r.interested_site) : '-';
       tr.innerHTML =
         '<td class="muted">' + escapeHtml(created) + '</td>' +
         '<td class="company">' + escapeHtml(r.company) + '</td>' +
+        '<td class="muted">' + escapeHtml(r.department || '-') + '</td>' +
         '<td>' + escapeHtml(r.manager_name) + '</td>' +
         '<td class="muted">' + escapeHtml(r.position || '-') + '</td>' +
         '<td>' + escapeHtml(r.phone) + '</td>' +
         '<td>' + escapeHtml(r.email) + '</td>' +
-        '<td class="muted">' + escapeHtml(r.headcount || '-') + '</td>' +
-        '<td><div class="chip-row">' + (chips || '<span class="muted">-</span>') + '</div></td>' +
-        '<td class="' + (r.consent ? 'consent-yes' : 'consent-no') + '">' + (r.consent ? '동의' : '미동의') + '</td>';
+        '<td class="muted">' + escapeHtml(companionCell) + '</td>' +
+        '<td class="muted">' + escapeHtml(siteLabel) + '</td>' +
+        '<td class="' + (r.marketing_consent ? 'consent-yes' : 'consent-no') + '">' + (r.marketing_consent ? '동의' : '미동의') + '</td>' +
+        '<td><button type="button" class="btn-danger-sm" data-delete-id="' + escapeHtml(r.id) + '">삭제</button></td>';
       tbody.appendChild(tr);
+    });
+    tbody.querySelectorAll('[data-delete-id]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        handleDelete(btn.getAttribute('data-delete-id'), btn);
+      });
     });
   }
 
@@ -425,29 +448,56 @@
     var startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     var weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
 
-    var today = 0, week = 0, consented = 0;
+    var today = 0, week = 0, attendees = 0;
     rows.forEach(function (r) {
       var created = r.created_at ? new Date(r.created_at) : null;
       if (created && created >= startOfToday) today++;
       if (created && created >= weekAgo) week++;
-      if (r.consent) consented++;
+      var companions = Array.isArray(r.companions) ? r.companions.length : 0;
+      attendees += 1 + companions;
     });
 
     document.getElementById('statTotal').textContent = rows.length;
     document.getElementById('statToday').textContent = today;
     document.getElementById('statWeek').textContent = week;
-    document.getElementById('statConsent').textContent = consented;
+    document.getElementById('statAttendees').textContent = attendees;
+  }
+
+  function handleDelete(id, btn) {
+    if (!window.confirm('이 참여신청을 삭제하시겠습니까? 삭제하면 되돌릴 수 없습니다.')) return;
+    btn.disabled = true;
+    btn.textContent = '삭제 중...';
+    fetch(SUPABASE_URL + '/rest/v1/rpc/delete_application', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': 'Bearer ' + SUPABASE_ANON_KEY
+      },
+      body: JSON.stringify({ input_password: currentPassword, target_id: id })
+    }).then(function (res) {
+      if (!res.ok) throw new Error('delete failed');
+      allRows = allRows.filter(function (r) { return r.id !== id; });
+      renderTable(filterRows(document.getElementById('searchInput').value));
+      renderStats(allRows);
+    }).catch(function () {
+      btn.disabled = false;
+      btn.textContent = '삭제';
+      window.alert('삭제 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요.');
+    });
   }
 
   function downloadCsv(rows) {
-    var headers = ['접수일시', '기업명', '담당자명', '직급/부서', '연락처', '이메일', '참석인원', '관심분야', '동의여부'];
+    var headers = ['접수일시', '기업(기관)', '부서', '성명', '직함', '연락처', '이메일', '동반참석자', '관심부지', '정보제공동의'];
     var lines = [headers.join(',')];
     rows.forEach(function (r) {
       var created = r.created_at ? new Date(r.created_at).toLocaleString('ko-KR') : '';
-      var interests = Array.isArray(r.interests) ? r.interests.join(' / ') : '';
+      var companions = Array.isArray(r.companions) ? r.companions : [];
+      var companionText = companions.map(function (c) { return c.name || ''; }).join(' / ');
+      var siteLabel = r.interested_site ? (SITE_LABELS[r.interested_site] || r.interested_site) : '';
       var cells = [
-        created, r.company, r.manager_name, r.position || '', r.phone, r.email,
-        r.headcount || '', interests, r.consent ? '동의' : '미동의'
+        created, r.company, r.department || '', r.manager_name, r.position || '', r.phone, r.email,
+        companionText, siteLabel, r.marketing_consent ? '동의' : '미동의'
       ].map(function (v) {
         var s = String(v == null ? '' : v).replace(/"/g, '""');
         return '"' + s + '"';

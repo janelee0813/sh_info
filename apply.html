@@ -99,19 +99,12 @@
   .step.step-in {
     animation: stepIn 0.35s ease-out forwards;
   }
-  .step.step-out {
-    animation: stepOut 0.15s ease-in forwards;
-  }
   @keyframes stepIn {
     from { opacity: 0; transform: translateY(20px); }
     to { opacity: 1; transform: translateY(0); }
   }
-  @keyframes stepOut {
-    from { opacity: 1; transform: translateY(0); }
-    to { opacity: 0; transform: translateY(-12px); }
-  }
   @media (prefers-reduced-motion: reduce) {
-    .step, .step.step-in, .step.step-out { animation: none !important; opacity: 1 !important; transform: none !important; }
+    .step, .step.step-in { animation: none !important; opacity: 1 !important; transform: none !important; }
   }
 
   .footer-region {
@@ -120,7 +113,7 @@
 
   /* ---------- Intro ---------- */
   .intro-shell {
-    min-height: calc(100dvh - 0px);
+    min-height: 100dvh;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -140,12 +133,12 @@
     font-family: var(--font-utility);
     font-size: 11px;
     font-weight: 600;
-    letter-spacing: 0.14em;
+    letter-spacing: 0.1em;
     color: var(--neutral-400);
   }
   .intro-mid { display: flex; flex-direction: column; gap: 16px; }
   .intro-title {
-    font-size: 28px;
+    font-size: 27px;
     line-height: 1.35;
     font-weight: 800;
     color: var(--neutral-900);
@@ -156,6 +149,13 @@
     font-size: 14px;
     line-height: 1.7;
     color: var(--neutral-500);
+    margin: 0;
+    font-weight: 500;
+  }
+  .intro-contact {
+    font-size: 12px;
+    line-height: 1.7;
+    color: var(--neutral-400);
     margin: 0;
     font-weight: 500;
   }
@@ -207,17 +207,23 @@
     cursor: pointer;
   }
 
-  /* ---------- Step: 2 (info) ---------- */
+  /* ---------- Step titles / sections ---------- */
   .step-title {
     font-size: 22px;
     line-height: 1.4;
     font-weight: 800;
     color: var(--neutral-900);
-    margin: 0 0 28px;
+    margin: 0 0 10px;
     white-space: pre-line;
   }
-  .info-section { display: flex; flex-direction: column; gap: 14px; margin-bottom: 30px; }
-  .section-title { font-size: 15px; font-weight: 800; color: var(--neutral-900); margin: 0; }
+  .step-note {
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--neutral-500);
+    margin: 0 0 24px;
+    font-weight: 500;
+  }
+  .info-section { display: flex; flex-direction: column; gap: 14px; margin-bottom: 28px; }
   .field-label {
     display: block;
     font-size: 13px;
@@ -242,20 +248,20 @@
 
   .chip-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr;
     gap: 8px;
   }
   .chip-btn {
     appearance: none;
     cursor: pointer;
-    text-align: left;
+    text-align: center;
     border-radius: 12px;
     border: 1px solid var(--neutral-200);
     background: #fff;
-    color: var(--neutral-700, #374151);
-    padding: 12px 14px;
-    font-size: 13.5px;
-    font-weight: 600;
+    color: var(--neutral-900);
+    padding: 12px 10px;
+    font-size: 14px;
+    font-weight: 700;
     line-height: 1.4;
     transition: all 0.15s ease;
   }
@@ -265,10 +271,47 @@
     border-color: var(--lime-deep);
     background: var(--lime);
     color: var(--ink-dark);
+  }
+
+  .option-card {
+    display: block;
+    width: 100%;
+    text-align: left;
+    border-radius: 14px;
+    border: 1px solid var(--neutral-200);
+    background: #fff;
+    color: var(--neutral-900);
+    padding: 15px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.5;
+    white-space: pre-line;
+    transition: all 0.15s ease;
+    margin-bottom: 10px;
+    cursor: pointer;
+  }
+  .option-card:active { transform: scale(0.99); }
+  .option-card:hover { border-color: var(--neutral-400); }
+  .option-card.selected {
+    border-color: var(--lime-deep);
+    background: var(--lime-wash);
+    box-shadow: inset 0 0 0 1px var(--lime-deep);
     font-weight: 800;
   }
 
-  /* ---------- Step: 3 (consent) ---------- */
+  .companion-card {
+    border-radius: 16px;
+    border: 1px solid var(--neutral-200);
+    background: var(--neutral-50);
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+  .companion-card .ttl { font-size: 13px; font-weight: 800; color: var(--neutral-900); margin: 0; }
+
+  /* ---------- Consent ---------- */
   .consent-box {
     border-radius: 16px;
     border: 1px solid var(--neutral-200);
@@ -277,7 +320,7 @@
     margin-bottom: 20px;
   }
   .consent-box .ttl { font-size: 13px; font-weight: 800; color: var(--neutral-900); margin: 0 0 8px; }
-  .consent-box .body { font-size: 12px; line-height: 1.7; color: var(--neutral-500); margin: 0; white-space: pre-line; }
+  .consent-box .body { font-size: 12px; line-height: 1.8; color: var(--neutral-500); margin: 0; white-space: pre-line; }
   .consent-toggle {
     width: 100%;
     display: flex;
@@ -305,6 +348,30 @@
   }
   .consent-toggle.on .consent-check { border-color: var(--lime-deep); background: var(--lime-deep); }
   .consent-toggle .label { font-size: 14px; font-weight: 600; color: var(--neutral-900); }
+
+  .consent-choice-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .consent-choice-btn {
+    appearance: none;
+    cursor: pointer;
+    border-radius: 14px;
+    border: 1px solid var(--neutral-200);
+    background: #fff;
+    color: var(--neutral-900);
+    padding: 16px 10px;
+    font-size: 14px;
+    font-weight: 700;
+    transition: all 0.15s ease;
+  }
+  .consent-choice-btn.selected {
+    border-color: var(--lime-deep);
+    background: var(--lime);
+    color: var(--ink-dark);
+  }
+  .consent-choice-btn.selected.decline {
+    border-color: var(--neutral-400);
+    background: var(--neutral-200);
+    color: var(--neutral-900);
+  }
 
   .error-box {
     border-radius: 12px;
@@ -349,26 +416,23 @@
   var SUPABASE_URL = "https://cbrowpkzgvomnrbyiadd.supabase.co";
   var SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNicm93cGt6Z3ZvbW5yYnlpYWRkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYwNzM2NTgsImV4cCI6MjEwMTY0OTY1OH0.nAGpSLkvAiqwvZ3fARBrsHrZbgmzcCFGxSIVYrB5wDA";
 
-  var HEADCOUNT_OPTIONS = [
-    { value: "1", label: "1명" },
-    { value: "2", label: "2명" },
-    { value: "3", label: "3명" },
-    { value: "4+", label: "4명 이상" }
-  ];
-  var INTEREST_OPTIONS = [
-    { value: "사옥 이전", label: "사옥 이전" },
-    { value: "투자 검토", label: "투자 검토" },
-    { value: "임대 문의", label: "임대 문의" },
-    { value: "기타", label: "기타" }
+  var SITE_OPTIONS = [
+    { value: "site_1", label: "1) 5호선 발산역 대형 부지\n(L4, L5, L6)" },
+    { value: "site_2", label: "2) 5호선 발산역 인접 중소형 부지\n(L5-3,4,5,6 및 L7-1,2,3)" },
+    { value: "site_3", label: "3) 올림픽대로 인접 중소형 부지\n(L1-1,2,3, L2-1,2,3, L3-1,2,3)" }
   ];
 
-  var TOTAL_STEPS = 2; // info, consent
+  var STEP_NAMES = ["applicant", "companions", "site", "consent", "consent2"];
+  var TOTAL_STEPS = STEP_NAMES.length;
 
   var state = {
-    phase: "intro", // intro | info | consent | submitting | error | success
-    fields: { company: "", manager: "", position: "", phone: "", email: "", headcount: "" },
-    interests: [],
-    consent: false,
+    phase: "intro",
+    applicant: { company: "", department: "", name: "", position: "", phone: "", email: "" },
+    companionCount: null, // 0 | 1 | 2
+    companions: [],
+    interestedSite: null,
+    privacyConsent: false,
+    marketingConsent: null, // true | false
     errorMessage: ""
   };
 
@@ -376,33 +440,42 @@
 
   function esc(s) {
     var div = document.createElement("div");
-    div.textContent = s;
+    div.textContent = s == null ? "" : s;
     return div.innerHTML;
   }
 
-  function isInfoValid() {
-    var f = state.fields;
-    return f.company.trim().length > 0 &&
-      f.manager.trim().length > 0 &&
-      f.phone.trim().length > 0 &&
-      f.email.trim().length > 0 &&
-      f.headcount.length > 0;
+  function isApplicantValid() {
+    var a = state.applicant;
+    return a.company.trim().length > 0 && a.name.trim().length > 0 &&
+      a.phone.trim().length > 0 && a.email.trim().length > 0;
+  }
+
+  function isCompanionsValid() {
+    if (state.companionCount === null) return false;
+    for (var i = 0; i < state.companionCount; i++) {
+      var c = state.companions[i] || {};
+      if (!(c.name || "").trim() || !(c.phone || "").trim() || !(c.email || "").trim()) return false;
+    }
+    return true;
   }
 
   function stepNumberFor(phase) {
-    if (phase === "info") return 1;
-    if (phase === "consent" || phase === "submitting" || phase === "error") return 2;
-    return 0;
+    var normalized = (phase === "error" || phase === "submitting") ? "consent2" : phase;
+    var idx = STEP_NAMES.indexOf(normalized);
+    return idx > -1 ? idx + 1 : 0;
   }
 
   function topBarHtml() {
     var step = stepNumberFor(state.phase);
     var pct = Math.min(100, Math.round((step / TOTAL_STEPS) * 100));
+    var backBtnHtml = state.phase === "submitting"
+      ? '<span class="back-btn" style="opacity:0.3;" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6" /></svg></span>'
+      : '<button type="button" class="back-btn" id="backBtn" aria-label="이전 단계로">' +
+          '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6" /></svg>' +
+        '</button>';
     return (
       '<div class="topbar">' +
-        '<button type="button" class="back-btn" id="backBtn" aria-label="이전 단계로">' +
-          '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6" /></svg>' +
-        '</button>' +
+        backBtnHtml +
         '<div class="progress-wrap">' +
           '<span class="progress-label">STEP ' + String(step).padStart(2, "0") + ' / ' + String(TOTAL_STEPS).padStart(2, "0") + '</span>' +
           '<div class="progress-track"><div class="progress-fill" style="width:' + pct + '%"></div></div>' +
@@ -425,112 +498,198 @@
       '<div class="intro-shell">' +
         '<div>' +
           '<a class="intro-eyebrow" href="index.html">SH · 서울주택도시개발공사</a>' +
-          '<div class="intro-sub-eyebrow">APPLICATION · 참여신청</div>' +
+          '<div class="intro-sub-eyebrow">2026 SH 마곡일반산업단지 매각설명회</div>' +
         '</div>' +
         '<div class="intro-mid">' +
-          '<h1 class="intro-title">사업설명회 참여신청을<br />시작합니다.</h1>' +
-          '<p class="intro-desc">정보를 남겨주시면 검토 후<br />사업설명회 초청장을 이메일로 보내드립니다.</p>' +
+          '<h1 class="intro-title">2026 SH 마곡일반산업단지<br />매각설명회 참여 신청</h1>' +
+          '<p class="intro-desc">사옥 건립 및 R&amp;D 센터 확장을 위해 마곡지구에 관심 있는 기업 담당자분들을 모시고 공급 대상 용지를 소개해 드리는 설명회입니다. 현장을 직접 확인하실 수 있는 투어도 함께 진행됩니다.</p>' +
+          '<p class="intro-contact">문의 · 예이프로젝트 안미나 대표 컨설턴트<br />shinvest2024@gmail.com · 010-7541-1002</p>' +
           '<span class="intro-badge">약 1분이면 신청 완료</span>' +
         '</div>' +
         '<button type="button" class="btn-cta" id="startBtn">신청 시작하기</button>' +
       '</div>';
     document.getElementById("startBtn").addEventListener("click", function () {
-      goTo("info");
+      goTo("applicant");
     });
   }
 
-  function renderInfoStep() {
-    var f = state.fields;
-    var headcountChips = HEADCOUNT_OPTIONS.map(function (opt) {
-      var sel = f.headcount === opt.value;
-      return '<button type="button" class="chip-btn' + (sel ? ' selected' : '') + '" data-headcount="' + opt.value + '">' + opt.label + '</button>';
-    }).join("");
-    var interestChips = INTEREST_OPTIONS.map(function (opt) {
-      var sel = state.interests.indexOf(opt.value) > -1;
-      return '<button type="button" class="chip-btn' + (sel ? ' selected' : '') + '" data-interest="' + esc(opt.value) + '">' + opt.label + '</button>';
-    }).join("");
-
+  function renderApplicantStep() {
+    var a = state.applicant;
     return (
-      '<h2 class="step-title">참여 정보를<br />입력해주세요.</h2>' +
+      '<h2 class="step-title">신청자 정보를<br />입력해주세요.</h2>' +
       '<div class="info-section">' +
-        '<h3 class="section-title">담당자님의 성함과 연락처를 입력해 주세요.</h3>' +
-        fieldHtml("f-manager", "담당자명", "홍길동", "text", true, f.manager) +
-        fieldHtml("f-phone", "연락처", "010-0000-0000", "tel", true, f.phone) +
-        fieldHtml("f-email", "이메일", "name@company.com", "email", true, f.email) +
-      '</div>' +
-      '<div class="info-section">' +
-        '<h3 class="section-title">소속 기업명과 직급/부서를 알려주세요.</h3>' +
-        fieldHtml("f-company", "기업명", "예) 마곡산업(주)", "text", true, f.company) +
-        fieldHtml("f-position", "직급 / 부서", "사업개발팀 팀장", "text", false, f.position) +
-      '</div>' +
-      '<div class="info-section">' +
-        '<h3 class="section-title">사업설명회 참석 인원을 선택해 주세요.<span class="req" style="color:var(--lime-deep)">*</span></h3>' +
-        '<div class="chip-grid" id="headcountGroup">' + headcountChips + '</div>' +
-      '</div>' +
-      '<div class="info-section" style="margin-bottom:8px;">' +
-        '<h3 class="section-title">관심 분야를 선택해 주세요. (복수 선택 가능)</h3>' +
-        '<div class="chip-grid" id="interestGroup">' + interestChips + '</div>' +
+        fieldHtml("f-company", "소속 기업(기관)", "예) 마곡산업(주)", "text", true, a.company) +
+        fieldHtml("f-department", "부서", "사업개발팀", "text", false, a.department) +
+        fieldHtml("f-name", "성명", "홍길동", "text", true, a.name) +
+        fieldHtml("f-position", "직함", "팀장", "text", false, a.position) +
+        fieldHtml("f-phone", "연락처", "010-0000-0000", "tel", true, a.phone) +
+        fieldHtml("f-email", "이메일", "name@company.com", "email", true, a.email) +
       '</div>'
     );
   }
 
-  function bindInfoStep() {
-    ["manager", "phone", "email", "company", "position"].forEach(function (key) {
+  function bindApplicantStep() {
+    ["company", "department", "name", "position", "phone", "email"].forEach(function (key) {
       var el = document.getElementById("f-" + key);
       el.addEventListener("input", function () {
-        state.fields[key] = el.value;
+        state.applicant[key] = el.value;
         updateFooterButtonState();
       });
     });
-    document.getElementById("headcountGroup").addEventListener("click", function (e) {
-      var btn = e.target.closest("[data-headcount]");
+  }
+
+  function companionFieldHtml(idx, key, label, placeholder, type, required) {
+    var c = state.companions[idx] || {};
+    var id = "comp-" + idx + "-" + key;
+    return (
+      '<div>' +
+        '<label class="field-label" for="' + id + '">' + label + (required ? '<span class="req">*</span>' : '') + '</label>' +
+        '<input class="field-input" id="' + id + '" data-comp-idx="' + idx + '" data-comp-key="' + key + '" type="' + type + '" placeholder="' + esc(placeholder) + '" value="' + esc(c[key]) + '" ' + (type === 'tel' ? 'inputmode="tel"' : '') + ' />' +
+      '</div>'
+    );
+  }
+
+  function renderCompanionsStep() {
+    var counts = [
+      { value: 0, label: "없음" },
+      { value: 1, label: "1명" },
+      { value: 2, label: "2명" }
+    ];
+    var chips = counts.map(function (c) {
+      var sel = state.companionCount === c.value;
+      return '<button type="button" class="chip-btn' + (sel ? ' selected' : '') + '" data-count="' + c.value + '">' + c.label + '</button>';
+    }).join("");
+
+    var companionBlocks = "";
+    if (state.companionCount) {
+      for (var i = 0; i < state.companionCount; i++) {
+        companionBlocks +=
+          '<div class="companion-card">' +
+            '<p class="ttl">동반 참석자 ' + (i + 1) + '</p>' +
+            companionFieldHtml(i, "name", "성명", "홍길동", "text", true) +
+            companionFieldHtml(i, "position", "직책", "과장", "text", false) +
+            companionFieldHtml(i, "phone", "연락처", "010-0000-0000", "tel", true) +
+            companionFieldHtml(i, "email", "이메일", "name@company.com", "email", true) +
+          '</div>';
+      }
+    }
+
+    return (
+      '<h2 class="step-title">동반 참석자가<br />있으신가요?</h2>' +
+      '<p class="step-note">좌석 제한으로 인해 기업별 최대 3인(신청자 본인 포함)까지 참석 가능합니다.</p>' +
+      '<div class="chip-grid" id="companionCountGroup">' + chips + '</div>' +
+      '<div style="margin-top:18px;">' + companionBlocks + '</div>'
+    );
+  }
+
+  function bindCompanionsStep() {
+    document.getElementById("companionCountGroup").addEventListener("click", function (e) {
+      var btn = e.target.closest("[data-count]");
       if (!btn) return;
-      state.fields.headcount = btn.getAttribute("data-headcount");
-      renderStep(true);
+      var count = parseInt(btn.getAttribute("data-count"), 10);
+      state.companionCount = count;
+      var next = [];
+      for (var i = 0; i < count; i++) next.push(state.companions[i] || { name: "", position: "", phone: "", email: "" });
+      state.companions = next;
+      renderStep();
     });
-    document.getElementById("interestGroup").addEventListener("click", function (e) {
-      var btn = e.target.closest("[data-interest]");
-      if (!btn) return;
-      var v = btn.getAttribute("data-interest");
-      var idx = state.interests.indexOf(v);
-      if (idx > -1) state.interests.splice(idx, 1);
-      else state.interests.push(v);
-      renderStep(true);
+    root.querySelectorAll("[data-comp-idx]").forEach(function (el) {
+      el.addEventListener("input", function () {
+        var idx = parseInt(el.getAttribute("data-comp-idx"), 10);
+        var key = el.getAttribute("data-comp-key");
+        state.companions[idx][key] = el.value;
+        updateFooterButtonState();
+      });
+    });
+  }
+
+  function renderSiteStep() {
+    var options = SITE_OPTIONS.map(function (opt) {
+      var sel = state.interestedSite === opt.value;
+      return '<button type="button" class="option-card' + (sel ? ' selected' : '') + '" data-site="' + opt.value + '">' + esc(opt.label) + '</button>';
+    }).join("");
+    return (
+      '<h2 class="step-title">관심 있는 부지가<br />있다면 선택해 주세요.</h2>' +
+      '<p class="step-note">선택하지 않으셔도 신청에는 제한이 없습니다.</p>' +
+      '<div>' + options + '</div>'
+    );
+  }
+
+  function bindSiteStep() {
+    root.querySelectorAll("[data-site]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var v = btn.getAttribute("data-site");
+        state.interestedSite = state.interestedSite === v ? null : v;
+        renderStep();
+      });
     });
   }
 
   function renderConsentStep() {
-    var errorHtml = "";
-    if (state.phase === "error" && state.errorMessage) {
-      errorHtml = '<p class="error-box">' + esc(state.errorMessage) + '</p>';
-    }
     return (
-      '<h2 class="step-title">마지막으로,<br />약관에 동의해주세요.</h2>' +
+      '<h2 class="step-title">개인정보 수집과 이용에<br />동의해주세요.</h2>' +
       '<div class="consent-box">' +
-        '<p class="ttl">개인정보 수집 및 이용 동의</p>' +
-        '<p class="body">수집 항목: 기업명, 담당자명, 직급/부서, 연락처, 이메일, 참석 인원, 관심 분야\n수집 목적: 사업설명회 초청장 발송 및 참여 상담\n위 항목은 사업설명회 초청 및 상담 목적으로만 사용되며, 동의를 거부할 권리가 있습니다. 다만 미동의 시 참여신청이 제한됩니다.</p>' +
+        '<p class="ttl">개인정보 수집 및 이용 동의 (필수)</p>' +
+        '<p class="body">수집하는 자 : 예이프로젝트\n수집 목적 : SH 토지매각설명회 행사 운영\n수집 항목 : 이름, 연락처, 이메일, 소속, 직책, 관심 용지 등\n보유 및 이용 기간 : 수집일 이후 1년\n\n동의를 거부할 권리가 있으며, 거부 시 행사 안내가 진행되지 않습니다.</p>' +
       '</div>' +
-      '<button type="button" class="consent-toggle' + (state.consent ? ' on' : '') + '" id="consentToggle">' +
-        '<span class="consent-check">' + (state.consent ? "✓" : "") + '</span>' +
+      '<button type="button" class="consent-toggle' + (state.privacyConsent ? ' on' : '') + '" id="consentToggle">' +
+        '<span class="consent-check">' + (state.privacyConsent ? "✓" : "") + '</span>' +
         '<span class="label">개인정보 수집 및 이용에 동의합니다.</span>' +
-      '</button>' +
-      errorHtml
+      '</button>'
     );
   }
 
   function bindConsentStep() {
     document.getElementById("consentToggle").addEventListener("click", function () {
-      state.consent = !state.consent;
-      renderStep(true);
+      state.privacyConsent = !state.privacyConsent;
+      renderStep();
+    });
+  }
+
+  function renderConsent2Step() {
+    var errorHtml = "";
+    if (state.phase === "error" && state.errorMessage) {
+      errorHtml = '<p class="error-box">' + esc(state.errorMessage) + '</p>';
+    }
+    return (
+      '<h2 class="step-title">정보 제공에도<br />동의하시겠어요?</h2>' +
+      '<p class="step-note">선택 항목이며, 동의하지 않으셔도 설명회 참여에는 제한이 없습니다.</p>' +
+      '<div class="consent-box">' +
+        '<p class="ttl">개인정보 제3자 제공 동의 (선택)</p>' +
+        '<p class="body">수집 주체 : 서울주택도시개발공사\n수집·이용 목적 : 정보 제공\n수집 항목 : 성명, 연락처, 이메일, 관심 분야 등\n보유·이용 기간 : 동의일로부터 3년간 보유·이용하며, 동의 철회 시 즉시 파기합니다.\n\n동의하지 않으셔도 행사 참여 및 안내에는 제한이 없습니다.</p>' +
+      '</div>' +
+      '<div class="consent-choice-row" id="consentChoiceGroup">' +
+        '<button type="button" class="consent-choice-btn' + (state.marketingConsent === true ? ' selected' : '') + '" data-choice="agree">동의합니다</button>' +
+        '<button type="button" class="consent-choice-btn' + (state.marketingConsent === false ? ' selected decline' : '') + '" data-choice="decline">동의하지 않습니다</button>' +
+      '</div>' +
+      errorHtml
+    );
+  }
+
+  function bindConsent2Step() {
+    document.getElementById("consentChoiceGroup").addEventListener("click", function (e) {
+      var btn = e.target.closest("[data-choice]");
+      if (!btn) return;
+      state.marketingConsent = btn.getAttribute("data-choice") === "agree";
+      renderStep();
     });
   }
 
   function footerHtml() {
-    if (state.phase === "info") {
-      return '<button type="button" class="btn-cta" id="nextBtn" ' + (isInfoValid() ? "" : "disabled") + '>다음</button>';
+    if (state.phase === "applicant") {
+      return '<button type="button" class="btn-cta" id="nextBtn" ' + (isApplicantValid() ? "" : "disabled") + '>다음</button>';
     }
-    if (state.phase === "consent" || state.phase === "error") {
-      return '<button type="button" class="btn-cta" id="submitBtn" ' + (state.consent ? "" : "disabled") + '>신청 제출하기</button>';
+    if (state.phase === "companions") {
+      return '<button type="button" class="btn-cta" id="nextBtn" ' + (isCompanionsValid() ? "" : "disabled") + '>다음</button>';
+    }
+    if (state.phase === "site") {
+      return '<button type="button" class="btn-cta" id="nextBtn">다음</button>';
+    }
+    if (state.phase === "consent") {
+      return '<button type="button" class="btn-cta" id="nextBtn" ' + (state.privacyConsent ? "" : "disabled") + '>다음</button>';
+    }
+    if (state.phase === "consent2" || state.phase === "error") {
+      return '<button type="button" class="btn-cta" id="submitBtn" ' + (state.marketingConsent === null ? "disabled" : "") + '>신청 제출하기</button>';
     }
     if (state.phase === "submitting") {
       return '<button type="button" class="btn-cta" disabled style="opacity:0.6;">제출하고 있습니다...</button>';
@@ -539,41 +698,67 @@
   }
 
   function bindFooter() {
-    if (state.phase === "info") {
+    if (state.phase === "applicant") {
       document.getElementById("nextBtn").addEventListener("click", function () {
-        if (!isInfoValid()) return;
+        if (!isApplicantValid()) return;
+        goTo("companions");
+      });
+    } else if (state.phase === "companions") {
+      document.getElementById("nextBtn").addEventListener("click", function () {
+        if (!isCompanionsValid()) return;
+        goTo("site");
+      });
+    } else if (state.phase === "site") {
+      document.getElementById("nextBtn").addEventListener("click", function () {
         goTo("consent");
       });
-    } else if (state.phase === "consent" || state.phase === "error") {
+    } else if (state.phase === "consent") {
+      document.getElementById("nextBtn").addEventListener("click", function () {
+        if (!state.privacyConsent) return;
+        goTo("consent2");
+      });
+    } else if (state.phase === "consent2" || state.phase === "error") {
       document.getElementById("submitBtn").addEventListener("click", submitApplication);
     }
   }
 
   function updateFooterButtonState() {
     var nextBtn = document.getElementById("nextBtn");
-    if (nextBtn) nextBtn.disabled = !isInfoValid();
-    var submitBtn = document.getElementById("submitBtn");
-    if (submitBtn) submitBtn.disabled = !state.consent;
+    if (!nextBtn) return;
+    if (state.phase === "applicant") nextBtn.disabled = !isApplicantValid();
+    else if (state.phase === "companions") nextBtn.disabled = !isCompanionsValid();
   }
 
-  function renderStep(skipAnim) {
-    var bodyHtml = state.phase === "info" ? renderInfoStep() : renderConsentStep();
+  var STEP_RENDERERS = {
+    applicant: renderApplicantStep,
+    companions: renderCompanionsStep,
+    site: renderSiteStep,
+    consent: renderConsentStep,
+    consent2: renderConsent2Step,
+    error: renderConsent2Step,
+    submitting: renderConsent2Step
+  };
+  var STEP_BINDERS = {
+    applicant: bindApplicantStep,
+    companions: bindCompanionsStep,
+    site: bindSiteStep,
+    consent: bindConsentStep,
+    consent2: bindConsent2Step,
+    error: bindConsent2Step,
+    submitting: bindConsent2Step
+  };
+
+  function renderStep() {
+    var bodyHtml = STEP_RENDERERS[state.phase]();
     root.innerHTML =
       topBarHtml() +
-      '<div class="step-region"><div class="step" id="stepInner">' + bodyHtml + '</div></div>' +
+      '<div class="step-region"><div class="step step-in" id="stepInner">' + bodyHtml + '</div></div>' +
       '<div class="footer-region">' + footerHtml() + '</div>';
 
-    document.getElementById("backBtn").addEventListener("click", handleBack);
-    if (state.phase === "info") bindInfoStep();
-    else bindConsentStep();
+    var backBtn = document.getElementById("backBtn");
+    if (backBtn) backBtn.addEventListener("click", handleBack);
+    STEP_BINDERS[state.phase]();
     bindFooter();
-
-    var stepEl = document.getElementById("stepInner");
-    if (!skipAnim) {
-      requestAnimationFrame(function () { stepEl.classList.add("step-in"); });
-    } else {
-      stepEl.classList.add("step-in");
-    }
   }
 
   function renderSuccess() {
@@ -581,46 +766,56 @@
       '<div class="success-shell">' +
         '<div class="success-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M5 12l5 5L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>' +
         '<h1>신청이 접수되었습니다</h1>' +
-        '<p>담당자 검토 후 입력하신 이메일로<br />사업설명회 초청장을 보내드립니다.</p>' +
+        '<p>담당자 검토 후 입력하신 연락처 또는 이메일로<br />설명회 안내를 보내드립니다.</p>' +
         '<a href="index.html" class="btn-outline" style="text-decoration:none;display:block;text-align:center;">메인으로 돌아가기</a>' +
       '</div>';
   }
 
   function handleBack() {
-    if (state.phase === "info") {
+    if (state.phase === "applicant") {
       goTo("intro");
-    } else if (state.phase === "consent" || state.phase === "error") {
+    } else if (state.phase === "companions") {
+      goTo("applicant");
+    } else if (state.phase === "site") {
+      goTo("companions");
+    } else if (state.phase === "consent") {
+      goTo("site");
+    } else if (state.phase === "consent2" || state.phase === "error") {
       state.errorMessage = "";
-      goTo("info");
+      goTo("consent");
     }
   }
 
   function goTo(phase) {
     state.phase = phase;
-    if (phase === "intro") {
-      renderIntro();
-      return;
-    }
-    if (phase === "success") {
-      renderSuccess();
-      return;
-    }
-    renderStep(false);
+    if (phase === "intro") { renderIntro(); return; }
+    if (phase === "success") { renderSuccess(); return; }
+    renderStep();
   }
 
   function submitApplication() {
     state.phase = "submitting";
-    renderStep(true);
+    renderStep();
 
+    var a = state.applicant;
     var payload = {
-      company: state.fields.company.trim(),
-      manager_name: state.fields.manager.trim(),
-      position: state.fields.position.trim() || null,
-      phone: state.fields.phone.trim(),
-      email: state.fields.email.trim(),
-      headcount: state.fields.headcount,
-      interests: state.interests,
-      consent: state.consent
+      company: a.company.trim(),
+      department: a.department.trim() || null,
+      manager_name: a.name.trim(),
+      position: a.position.trim() || null,
+      phone: a.phone.trim(),
+      email: a.email.trim(),
+      companions: state.companions.map(function (c) {
+        return {
+          name: c.name.trim(),
+          position: (c.position || "").trim() || null,
+          phone: c.phone.trim(),
+          email: c.email.trim()
+        };
+      }),
+      interested_site: state.interestedSite,
+      privacy_consent: true,
+      marketing_consent: state.marketingConsent === true
     };
 
     fetch(SUPABASE_URL + "/rest/v1/applications", {
@@ -640,7 +835,7 @@
       .catch(function () {
         state.errorMessage = "제출 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요.";
         state.phase = "error";
-        renderStep(true);
+        renderStep();
       });
   }
 
