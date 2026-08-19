@@ -24,6 +24,7 @@ alter table public.lucky_draw_rounds enable row level security;
 
 -- 응모 페이지에서 "지금 몇 회차가 열려있는지 / 정원이 얼마인지 / 상품 구성"을
 -- 읽을 수 있어야 하므로 조회만 익명 허용합니다. (수정은 아래 관리자 함수로만 가능)
+drop policy if exists "anon can read round settings" on public.lucky_draw_rounds;
 create policy "anon can read round settings"
   on public.lucky_draw_rounds
   for select
@@ -50,6 +51,7 @@ create table if not exists public.lucky_draw_entries (
 alter table public.lucky_draw_entries enable row level security;
 
 -- 응모는 익명으로 가능하지만, 조회/수정/삭제는 아래 비밀번호 기반 함수로만 가능합니다.
+drop policy if exists "anon can insert lucky draw entries" on public.lucky_draw_entries;
 create policy "anon can insert lucky draw entries"
   on public.lucky_draw_entries
   for insert
