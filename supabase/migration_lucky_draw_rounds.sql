@@ -5,7 +5,8 @@
 -- 만드는 것:
 --   1) lucky_draw_rounds  - 회차별 설정(공개상태 / 정원 / 상품 구성)
 --   2) lucky_draw_entries - 회차별 응모 데이터 (참여신청과 동일한 항목 구성 + round 구분)
---   3) 관리자 조회/삭제/오픈-마감 함수 (비밀번호는 기존 admin.html과 동일한 7890)
+--   3) get_lucky_draw_round_status - 응모 페이지가 열림/마감 상태를 확인하는 공개 함수
+--   4) 관리자 조회/삭제/오픈-마감 함수 (비밀번호는 기존 admin.html과 동일한 7890)
 --
 -- SQL 편집기에서 그대로 실행하세요.
 
@@ -55,7 +56,24 @@ create policy "anon can insert lucky draw entries"
   to anon
   with check (true);
 
--- 3) 관리자 함수 -----------------------------------------------------------
+-- 3) 응모 페이지용 공개 함수 -----------------------------------------------
+-- 개인정보는 전혀 노출하지 않고, "지금 열려있는지 / 정원이 얼마나 찼는지"만 알려줍니다.
+-- draw2-apply.html이 응모 폼을 보여주기 전에 이 함수로 상태를 먼저 확인합니다.
+create or replace function public.get_lucky_draw_round_status(target_round int)
+returns table (round int, is_open boolean, capacity int, tiers jsonb, entry_count bigint)
+language sql
+security definer
+set search_path = public
+as $$
+  select r.round, r.is_open, r.capacity, r.tiers,
+         (select count(*) from public.lucky_draw_entries e where e.round = r.round)
+  from public.lucky_draw_rounds r
+  where r.round = target_round;
+$$;
+
+grant execute on function public.get_lucky_draw_round_status(int) to anon;
+
+-- 4) 관리자 함수 -----------------------------------------------------------
 -- 특정 회차의 응모 목록 조회 (admin.html의 get_applications와 동일한 패턴)
 create or replace function public.get_lucky_draw_entries(input_password text, target_round int)
 returns setof public.lucky_draw_entries
@@ -113,7 +131,7 @@ $$;
 
 grant execute on function public.set_lucky_draw_round_open(text, int, boolean) to anon;
 
--- 4) 2차 회차 등록 -----------------------------------------------------------
+-- 5) 2차 회차 등록 -----------------------------------------------------------
 -- 준비가 끝나기 전 실수로 응모가 열리지 않도록 is_open = false(닫힘) 상태로 만듭니다.
 -- 시작할 준비가 되면 관리자 화면에서 열거나,
 -- 아래 SQL을 다시 실행해 is_open을 true로 바꾸면 됩니다.

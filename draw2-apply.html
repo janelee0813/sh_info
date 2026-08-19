@@ -1,0 +1,736 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>럭키드로우 2차 응모 | 마곡도시개발지구 복합용지</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Freesentation/paperlogy@main/Paperlogy.css">
+<style>
+  :root {
+    --ink-dark: #0B0D10;
+    --ink-dark-soft: #55606E;
+    --neutral-900: #171A1F;
+    --neutral-500: #6B7280;
+    --neutral-400: #9AA1AC;
+    --neutral-200: #E5E7EB;
+    --neutral-100: #F1F2F4;
+    --neutral-50: #F7F8FA;
+    --lime: #CFF24C;
+    --lime-strong: #9BC200;
+    --lime-deep: #5C7A00;
+    --lime-wash: rgba(207,242,76,0.12);
+    --red-wash: #FEF2F2;
+    --red-ink: #DC2626;
+    --radius-pill: 60px;
+    --font-display: "Paperlogy", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    --font-utility: ui-monospace, "SF Mono", "Roboto Mono", "Consolas", monospace;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    background: #fff;
+    color: var(--ink-dark);
+    font-family: var(--font-display);
+    -webkit-font-smoothing: antialiased;
+  }
+  button, input, select { font-family: inherit; }
+
+  .app-shell {
+    max-width: 480px;
+    margin: 0 auto;
+    min-height: 100dvh;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ---------- Top bar (back + progress) ---------- */
+  .topbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: max(24px, env(safe-area-inset-top)) 24px 0;
+  }
+  .back-btn {
+    flex-shrink: 0;
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    border: 1px solid var(--neutral-200);
+    background: #fff;
+    color: var(--neutral-500);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    transition: transform 0.15s ease;
+  }
+  .back-btn:active { transform: scale(0.92); }
+  .progress-wrap { flex: 1; }
+  .progress-label {
+    display: block;
+    font-family: var(--font-utility);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    color: var(--neutral-400);
+    margin-bottom: 8px;
+  }
+  .progress-track {
+    height: 4px;
+    border-radius: 999px;
+    background: var(--neutral-200);
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    border-radius: 999px;
+    background: var(--lime);
+    transition: width 0.5s ease-out;
+  }
+
+  /* ---------- Step container ---------- */
+  .step-region {
+    flex: 1;
+    padding: 24px 24px 0;
+    overflow-y: auto;
+  }
+  .step {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  .step.step-in {
+    animation: stepIn 0.35s ease-out forwards;
+  }
+  .step.step-static {
+    opacity: 1;
+    transform: none;
+  }
+  @keyframes stepIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .step, .step.step-in, .step.step-static { animation: none !important; opacity: 1 !important; transform: none !important; }
+  }
+
+  .footer-region {
+    padding: 20px 24px max(24px, env(safe-area-inset-bottom));
+  }
+
+  /* ---------- Intro / status shells (loading, closed) ---------- */
+  .intro-shell {
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: max(40px, env(safe-area-inset-top)) 24px max(32px, env(safe-area-inset-bottom));
+  }
+  .intro-eyebrow {
+    display: inline-block;
+    font-family: var(--font-utility);
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    color: var(--lime-deep);
+    text-decoration: none;
+  }
+  .intro-sub-eyebrow {
+    margin-top: 4px;
+    font-family: var(--font-utility);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    color: var(--neutral-400);
+  }
+  .intro-mid { display: flex; flex-direction: column; gap: 16px; }
+  .intro-title {
+    font-size: 27px;
+    line-height: 1.35;
+    font-weight: 800;
+    color: var(--neutral-900);
+    margin: 0;
+    letter-spacing: -0.01em;
+  }
+  .intro-desc {
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--neutral-500);
+    margin: 0;
+    font-weight: 500;
+  }
+  .intro-badge {
+    margin-top: 4px;
+    display: inline-flex;
+    width: fit-content;
+    align-items: center;
+    gap: 8px;
+    border-radius: var(--radius-pill);
+    background: var(--lime-wash);
+    color: var(--lime-deep);
+    padding: 8px 14px;
+    font-size: 12px;
+    font-weight: 800;
+    font-family: var(--font-utility);
+    letter-spacing: 0.03em;
+  }
+
+  .status-shell {
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 40px 32px;
+  }
+  .status-icon {
+    width: 64px; height: 64px;
+    border-radius: 50%;
+    background: var(--neutral-100);
+    color: var(--neutral-500);
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 22px;
+  }
+  .status-shell h1 { font-size: 21px; font-weight: 800; color: var(--neutral-900); margin: 0 0 10px; }
+  .status-shell p { font-size: 14px; line-height: 1.7; color: var(--neutral-500); margin: 0 0 28px; max-width: 32ch; font-weight: 500; }
+
+  /* ---------- Buttons ---------- */
+  .btn-cta {
+    width: 100%;
+    appearance: none;
+    border: none;
+    cursor: pointer;
+    background: var(--lime);
+    color: var(--ink-dark);
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 16px;
+    padding: 17px;
+    border-radius: var(--radius-pill);
+    transition: background 0.2s ease, transform 0.15s ease, opacity 0.2s ease;
+  }
+  .btn-cta:active { transform: scale(0.98); }
+  .btn-cta:hover:not(:disabled) { background: var(--lime-strong); }
+  .btn-cta:disabled { opacity: 0.3; cursor: not-allowed; }
+  .btn-outline {
+    width: 100%;
+    appearance: none;
+    border: 1px solid var(--neutral-200);
+    background: #fff;
+    color: var(--ink-dark);
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 15px;
+    padding: 15px;
+    border-radius: var(--radius-pill);
+    cursor: pointer;
+  }
+
+  /* ---------- Step titles / sections ---------- */
+  .step-title {
+    font-size: 22px;
+    line-height: 1.4;
+    font-weight: 800;
+    color: var(--neutral-900);
+    margin: 0 0 10px;
+    white-space: pre-line;
+  }
+  .step-note {
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--neutral-500);
+    margin: 0 0 24px;
+    font-weight: 500;
+  }
+  .info-section { display: flex; flex-direction: column; gap: 14px; margin-bottom: 28px; }
+  .field-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--neutral-500);
+    margin-bottom: 6px;
+  }
+  .field-label .req { color: var(--lime-deep); margin-left: 3px; }
+  .field-input {
+    width: 100%;
+    border-radius: 12px;
+    border: 1px solid var(--neutral-200);
+    background: var(--neutral-50);
+    padding: 13px 14px;
+    font-size: 15px;
+    color: var(--neutral-900);
+    outline: none;
+    transition: border-color 0.15s ease, background 0.15s ease;
+  }
+  .field-input:focus { border-color: var(--lime-deep); background: #fff; }
+  .field-input::placeholder { color: var(--neutral-400); }
+
+  /* ---------- Consent ---------- */
+  .consent-box {
+    border-radius: 16px;
+    border: 1px solid var(--neutral-200);
+    background: var(--neutral-50);
+    padding: 16px;
+    margin-bottom: 20px;
+  }
+  .consent-box .ttl { font-size: 13px; font-weight: 800; color: var(--neutral-900); margin: 0 0 8px; }
+  .consent-box .body { font-size: 12px; line-height: 1.8; color: var(--neutral-500); margin: 0; white-space: pre-line; }
+  .consent-toggle {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-radius: 16px;
+    border: 1px solid var(--neutral-200);
+    background: #fff;
+    padding: 16px;
+    cursor: pointer;
+    text-align: left;
+    transition: border-color 0.15s ease, background 0.15s ease;
+  }
+  .consent-toggle.on { border-color: var(--lime-deep); background: var(--lime-wash); }
+  .consent-check {
+    flex-shrink: 0;
+    width: 20px; height: 20px;
+    border-radius: 6px;
+    border: 2px solid var(--neutral-200);
+    background: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px;
+    font-weight: 800;
+    color: #fff;
+  }
+  .consent-toggle.on .consent-check { border-color: var(--lime-deep); background: var(--lime-deep); }
+  .consent-toggle .label { font-size: 14px; font-weight: 600; color: var(--neutral-900); }
+
+  .consent-choice-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .consent-choice-btn {
+    appearance: none;
+    cursor: pointer;
+    border-radius: 14px;
+    border: 1px solid var(--neutral-200);
+    background: #fff;
+    color: var(--neutral-900);
+    padding: 16px 10px;
+    font-size: 14px;
+    font-weight: 700;
+    transition: all 0.15s ease;
+  }
+  .consent-choice-btn.selected {
+    border-color: var(--lime-deep);
+    background: var(--lime);
+    color: var(--ink-dark);
+  }
+  .consent-choice-btn.selected.decline {
+    border-color: var(--neutral-400);
+    background: var(--neutral-200);
+    color: var(--neutral-900);
+  }
+
+  .error-box {
+    border-radius: 12px;
+    background: var(--red-wash);
+    color: var(--red-ink);
+    padding: 12px 16px;
+    font-size: 13px;
+    line-height: 1.6;
+    margin-top: 16px;
+  }
+
+  /* ---------- Success ---------- */
+  .success-shell {
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 40px 32px;
+  }
+  .success-icon {
+    width: 64px; height: 64px;
+    border-radius: 50%;
+    background: var(--lime-wash);
+    color: var(--lime-deep);
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 22px;
+  }
+  .success-shell h1 { font-size: 21px; font-weight: 800; color: var(--neutral-900); margin: 0 0 10px; }
+  .success-shell p { font-size: 14px; line-height: 1.7; color: var(--neutral-500); margin: 0 0 28px; max-width: 32ch; font-weight: 500; }
+
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+
+<div class="app-shell" id="appShell"></div>
+
+<script>
+(function () {
+  var SUPABASE_URL = "https://cbrowpkzgvomnrbyiadd.supabase.co";
+  var SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNicm93cGt6Z3ZvbW5yYnlpYWRkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYwNzM2NTgsImV4cCI6MjEwMTY0OTY1OH0.nAGpSLkvAiqwvZ3fARBrsHrZbgmzcCFGxSIVYrB5wDA";
+  var ROUND = 2;
+
+  var STEP_NAMES = ["applicant", "consent", "consent2"];
+  var TOTAL_STEPS = STEP_NAMES.length;
+
+  var state = {
+    phase: "loading", // loading | closed | intro | applicant | consent | consent2 | submitting | error | success
+    closedReason: "", // "not_open" | "full"
+    applicant: { company: "", department: "", name: "", position: "", phone: "", email: "" },
+    privacyConsent: false,
+    marketingConsent: null, // true | false
+    errorMessage: ""
+  };
+
+  var root = document.getElementById("appShell");
+
+  function esc(s) {
+    var div = document.createElement("div");
+    div.textContent = s == null ? "" : s;
+    return div.innerHTML;
+  }
+
+  function formatKoreanPhone(v) {
+    var d = (v || "").replace(/\D/g, "").slice(0, 11);
+    if (d.indexOf("02") === 0) {
+      if (d.length < 3) return d;
+      if (d.length < 6) return d.slice(0, 2) + "-" + d.slice(2);
+      if (d.length < 10) return d.slice(0, 2) + "-" + d.slice(2, 5) + "-" + d.slice(5);
+      return d.slice(0, 2) + "-" + d.slice(2, 6) + "-" + d.slice(6, 10);
+    }
+    if (d.length < 4) return d;
+    if (d.length < 7) return d.slice(0, 3) + "-" + d.slice(3);
+    if (d.length < 11) return d.slice(0, 3) + "-" + d.slice(3, 6) + "-" + d.slice(6);
+    return d.slice(0, 3) + "-" + d.slice(3, 7) + "-" + d.slice(7, 11);
+  }
+
+  function applyPhoneFormatting(input) {
+    var digitsBeforeCursor = input.value.slice(0, input.selectionStart).replace(/\D/g, "").length;
+    var formatted = formatKoreanPhone(input.value);
+    input.value = formatted;
+    var count = 0, pos = formatted.length;
+    for (var i = 0; i < formatted.length; i++) {
+      if (/\d/.test(formatted[i])) count++;
+      if (count === digitsBeforeCursor) { pos = i + 1; break; }
+    }
+    input.setSelectionRange(pos, pos);
+    return formatted;
+  }
+
+  function isApplicantValid() {
+    var a = state.applicant;
+    return a.company.trim().length > 0 && a.name.trim().length > 0 &&
+      a.phone.trim().length > 0 && a.email.trim().length > 0;
+  }
+
+  function stepNumberFor(phase) {
+    var normalized = (phase === "error" || phase === "submitting") ? "consent2" : phase;
+    var idx = STEP_NAMES.indexOf(normalized);
+    return idx > -1 ? idx + 1 : 0;
+  }
+
+  function topBarHtml() {
+    var step = stepNumberFor(state.phase);
+    var pct = Math.min(100, Math.round((step / TOTAL_STEPS) * 100));
+    var backBtnHtml = state.phase === "submitting"
+      ? '<span class="back-btn" style="opacity:0.3;" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6" /></svg></span>'
+      : '<button type="button" class="back-btn" id="backBtn" aria-label="이전 단계로">' +
+          '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6" /></svg>' +
+        '</button>';
+    return (
+      '<div class="topbar">' +
+        backBtnHtml +
+        '<div class="progress-wrap">' +
+          '<span class="progress-label">STEP ' + String(step).padStart(2, "0") + ' / ' + String(TOTAL_STEPS).padStart(2, "0") + '</span>' +
+          '<div class="progress-track"><div class="progress-fill" style="width:' + pct + '%"></div></div>' +
+        '</div>' +
+      '</div>'
+    );
+  }
+
+  function fieldHtml(id, label, placeholder, type, required, value) {
+    return (
+      '<div>' +
+        '<label class="field-label" for="' + id + '">' + label + (required ? '<span class="req">*</span>' : '') + '</label>' +
+        '<input class="field-input" id="' + id + '" type="' + type + '" placeholder="' + esc(placeholder) + '" value="' + esc(value) + '" ' + (type === 'tel' ? 'inputmode="tel"' : '') + ' />' +
+      '</div>'
+    );
+  }
+
+  function renderLoading() {
+    root.innerHTML =
+      '<div class="status-shell"><p>불러오는 중...</p></div>';
+  }
+
+  function renderClosed() {
+    var title = state.closedReason === "full" ? "응모가 마감되었습니다" : "아직 응모 기간이 아닙니다";
+    var desc = state.closedReason === "full"
+      ? "준비된 상품 응모가 모두 소진되었습니다.\n관심 가져주셔서 감사합니다."
+      : "2차 럭키드로우 응모는 아직 시작되지 않았습니다.\n조금만 기다려주세요.";
+    root.innerHTML =
+      '<div class="status-shell">' +
+        '<div class="status-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/><path d="M12 7v6l4 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>' +
+        '<h1>' + esc(title) + '</h1>' +
+        '<p>' + esc(desc) + '</p>' +
+        '<a href="index.html" class="btn-outline" style="text-decoration:none;display:block;text-align:center;">홈페이지로 돌아가기</a>' +
+      '</div>';
+  }
+
+  function renderIntro() {
+    root.innerHTML =
+      '<div class="intro-shell">' +
+        '<div>' +
+          '<a class="intro-eyebrow" href="index.html">SH · 서울주택도시개발공사</a>' +
+          '<div class="intro-sub-eyebrow">이벤트 · 럭키드로우 2차</div>' +
+        '</div>' +
+        '<div class="intro-mid">' +
+          '<h1 class="intro-title">럭키드로우<br />2차 이벤트 응모</h1>' +
+          '<p class="intro-desc">간단한 정보만 남겨주시면 럭키드로우 2차 이벤트에 자동으로 응모됩니다. 당첨 여부는 입력하신 연락처 또는 이메일로 안내드립니다.</p>' +
+          '<span class="intro-badge">약 30초면 응모 완료</span>' +
+        '</div>' +
+        '<button type="button" class="btn-cta" id="startBtn">응모 시작하기</button>' +
+      '</div>';
+    document.getElementById("startBtn").addEventListener("click", function () {
+      goTo("applicant");
+    });
+  }
+
+  function renderApplicantStep() {
+    var a = state.applicant;
+    return (
+      '<h2 class="step-title">응모자 정보를<br />입력해주세요.</h2>' +
+      '<div class="info-section">' +
+        fieldHtml("f-company", "소속 기업(기관)", "예) 마곡산업(주)", "text", true, a.company) +
+        fieldHtml("f-department", "부서", "사업개발팀", "text", false, a.department) +
+        fieldHtml("f-name", "성명", "홍길동", "text", true, a.name) +
+        fieldHtml("f-position", "직함", "팀장", "text", false, a.position) +
+        fieldHtml("f-phone", "연락처", "010-0000-0000", "tel", true, a.phone) +
+        fieldHtml("f-email", "이메일", "name@company.com", "email", true, a.email) +
+      '</div>'
+    );
+  }
+
+  function bindApplicantStep() {
+    ["company", "department", "name", "position", "phone", "email"].forEach(function (key) {
+      var el = document.getElementById("f-" + key);
+      el.addEventListener("input", function () {
+        state.applicant[key] = key === "phone" ? applyPhoneFormatting(el) : el.value;
+        updateFooterButtonState();
+      });
+    });
+  }
+
+  function renderConsentStep() {
+    return (
+      '<h2 class="step-title">개인정보 수집과 이용에<br />동의해주세요.</h2>' +
+      '<div class="consent-box">' +
+        '<p class="ttl">개인정보 수집 및 이용 동의 (필수)</p>' +
+        '<p class="body">수집하는 자 : 예이프로젝트\n수집 목적 : 럭키드로우 2차 이벤트 응모 및 당첨자 안내\n수집 항목 : 이름, 연락처, 이메일, 소속, 직책\n보유 및 이용 기간 : 수집일 이후 1년\n\n동의를 거부할 권리가 있으며, 거부 시 이벤트 응모가 진행되지 않습니다.</p>' +
+      '</div>' +
+      '<button type="button" class="consent-toggle' + (state.privacyConsent ? ' on' : '') + '" id="consentToggle">' +
+        '<span class="consent-check">' + (state.privacyConsent ? "✓" : "") + '</span>' +
+        '<span class="label">개인정보 수집 및 이용에 동의합니다.</span>' +
+      '</button>'
+    );
+  }
+
+  function bindConsentStep() {
+    document.getElementById("consentToggle").addEventListener("click", function () {
+      state.privacyConsent = !state.privacyConsent;
+      renderStep(false);
+    });
+  }
+
+  function renderConsent2Step() {
+    var errorHtml = "";
+    if (state.phase === "error" && state.errorMessage) {
+      errorHtml = '<p class="error-box">' + esc(state.errorMessage) + '</p>';
+    }
+    return (
+      '<h2 class="step-title">정보 제공에도<br />동의하시겠어요?</h2>' +
+      '<p class="step-note">선택 항목이며, 동의하지 않으셔도 이벤트 응모에는 제한이 없습니다.</p>' +
+      '<div class="consent-box">' +
+        '<p class="ttl">개인정보 제3자 제공 동의 (선택)</p>' +
+        '<p class="body">수집 주체 : 서울주택도시개발공사\n수집·이용 목적 : 정보 제공\n수집 항목 : 성명, 연락처, 이메일\n보유·이용 기간 : 동의일로부터 3년간 보유·이용하며, 동의 철회 시 즉시 파기합니다.\n\n동의하지 않으셔도 이벤트 응모에는 제한이 없습니다.</p>' +
+      '</div>' +
+      '<div class="consent-choice-row" id="consentChoiceGroup">' +
+        '<button type="button" class="consent-choice-btn' + (state.marketingConsent === true ? ' selected' : '') + '" data-choice="agree">동의합니다</button>' +
+        '<button type="button" class="consent-choice-btn' + (state.marketingConsent === false ? ' selected decline' : '') + '" data-choice="decline">동의하지 않습니다</button>' +
+      '</div>' +
+      errorHtml
+    );
+  }
+
+  function bindConsent2Step() {
+    document.getElementById("consentChoiceGroup").addEventListener("click", function (e) {
+      var btn = e.target.closest("[data-choice]");
+      if (!btn) return;
+      state.marketingConsent = btn.getAttribute("data-choice") === "agree";
+      renderStep(false);
+    });
+  }
+
+  function footerHtml() {
+    if (state.phase === "applicant") {
+      return '<button type="button" class="btn-cta" id="nextBtn" ' + (isApplicantValid() ? "" : "disabled") + '>다음</button>';
+    }
+    if (state.phase === "consent") {
+      return '<button type="button" class="btn-cta" id="nextBtn" ' + (state.privacyConsent ? "" : "disabled") + '>다음</button>';
+    }
+    if (state.phase === "consent2" || state.phase === "error") {
+      return '<button type="button" class="btn-cta" id="submitBtn" ' + (state.marketingConsent === null ? "disabled" : "") + '>응모 제출하기</button>';
+    }
+    if (state.phase === "submitting") {
+      return '<button type="button" class="btn-cta" disabled style="opacity:0.6;">제출하고 있습니다...</button>';
+    }
+    return "";
+  }
+
+  function bindFooter() {
+    if (state.phase === "applicant") {
+      document.getElementById("nextBtn").addEventListener("click", function () {
+        if (!isApplicantValid()) return;
+        goTo("consent");
+      });
+    } else if (state.phase === "consent") {
+      document.getElementById("nextBtn").addEventListener("click", function () {
+        if (!state.privacyConsent) return;
+        goTo("consent2");
+      });
+    } else if (state.phase === "consent2" || state.phase === "error") {
+      document.getElementById("submitBtn").addEventListener("click", submitEntry);
+    }
+  }
+
+  function updateFooterButtonState() {
+    var nextBtn = document.getElementById("nextBtn");
+    if (!nextBtn) return;
+    if (state.phase === "applicant") nextBtn.disabled = !isApplicantValid();
+  }
+
+  var STEP_RENDERERS = {
+    applicant: renderApplicantStep,
+    consent: renderConsentStep,
+    consent2: renderConsent2Step,
+    error: renderConsent2Step,
+    submitting: renderConsent2Step
+  };
+  var STEP_BINDERS = {
+    applicant: bindApplicantStep,
+    consent: bindConsentStep,
+    consent2: bindConsent2Step,
+    error: bindConsent2Step,
+    submitting: bindConsent2Step
+  };
+
+  function renderStep(animate) {
+    var bodyHtml = STEP_RENDERERS[state.phase]();
+    var stepClass = animate ? "step step-in" : "step step-static";
+    root.innerHTML =
+      topBarHtml() +
+      '<div class="step-region"><div class="' + stepClass + '" id="stepInner">' + bodyHtml + '</div></div>' +
+      '<div class="footer-region">' + footerHtml() + '</div>';
+
+    var backBtn = document.getElementById("backBtn");
+    if (backBtn) backBtn.addEventListener("click", handleBack);
+    STEP_BINDERS[state.phase]();
+    bindFooter();
+  }
+
+  function renderSuccess() {
+    root.innerHTML =
+      '<div class="success-shell">' +
+        '<div class="success-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M5 12l5 5L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>' +
+        '<h1>응모가 접수되었습니다</h1>' +
+        '<p>당첨자 발표 시 입력하신 연락처 또는 이메일로<br />안내를 보내드립니다.</p>' +
+        '<a href="index.html" class="btn-outline" style="text-decoration:none;display:block;text-align:center;">메인으로 돌아가기</a>' +
+      '</div>';
+  }
+
+  function handleBack() {
+    if (state.phase === "applicant") {
+      goTo("intro");
+    } else if (state.phase === "consent") {
+      goTo("applicant");
+    } else if (state.phase === "consent2" || state.phase === "error") {
+      state.errorMessage = "";
+      goTo("consent");
+    }
+  }
+
+  function goTo(phase) {
+    state.phase = phase;
+    if (phase === "intro") { renderIntro(); return; }
+    if (phase === "closed") { renderClosed(); return; }
+    if (phase === "success") { renderSuccess(); return; }
+    renderStep(true);
+  }
+
+  function submitEntry() {
+    state.phase = "submitting";
+    renderStep(true);
+
+    var a = state.applicant;
+    var payload = {
+      round: ROUND,
+      company: a.company.trim(),
+      department: a.department.trim() || null,
+      manager_name: a.name.trim(),
+      position: a.position.trim() || null,
+      phone: a.phone.trim(),
+      email: a.email.trim(),
+      privacy_consent: true,
+      marketing_consent: state.marketingConsent === true
+    };
+
+    fetch(SUPABASE_URL + "/rest/v1/lucky_draw_entries", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "apikey": SUPABASE_ANON_KEY,
+        "Authorization": "Bearer " + SUPABASE_ANON_KEY,
+        "Prefer": "return=minimal"
+      },
+      body: JSON.stringify(payload)
+    })
+      .then(function (res) {
+        if (!res.ok) throw new Error("request failed: " + res.status);
+        goTo("success");
+      })
+      .catch(function () {
+        state.errorMessage = "제출 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요.";
+        state.phase = "error";
+        renderStep(true);
+      });
+  }
+
+  function fetchRoundStatus() {
+    return fetch(SUPABASE_URL + "/rest/v1/rpc/get_lucky_draw_round_status", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "apikey": SUPABASE_ANON_KEY,
+        "Authorization": "Bearer " + SUPABASE_ANON_KEY
+      },
+      body: JSON.stringify({ target_round: ROUND })
+    }).then(function (res) {
+      if (!res.ok) throw new Error("status request failed: " + res.status);
+      return res.json();
+    });
+  }
+
+  renderLoading();
+  fetchRoundStatus().then(function (rows) {
+    var row = rows && rows[0];
+    if (!row) { state.closedReason = "not_open"; goTo("closed"); return; }
+    if (!row.is_open) { state.closedReason = "not_open"; goTo("closed"); return; }
+    if (row.entry_count >= row.capacity) { state.closedReason = "full"; goTo("closed"); return; }
+    goTo("intro");
+  }).catch(function () {
+    state.closedReason = "not_open";
+    goTo("closed");
+  });
+})();
+</script>
+
+</body>
+</html>
