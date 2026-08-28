@@ -407,6 +407,14 @@
     return div.innerHTML;
   }
 
+  function formatCompanion(c) {
+    var parts = [c.name || ''];
+    if (c.position) parts.push(c.position);
+    if (c.phone) parts.push(c.phone);
+    if (c.email) parts.push(c.email);
+    return parts.join(' · ');
+  }
+
   function renderTable(rows) {
     var tbody = document.getElementById('tableBody');
     var emptyState = document.getElementById('emptyState');
@@ -422,7 +430,7 @@
       var created = r.created_at ? new Date(r.created_at).toLocaleString('ko-KR') : '-';
       var companions = Array.isArray(r.companions) ? r.companions : [];
       var companionCell = companions.length
-        ? companions.length + '명 (' + companions.map(function (c) { return escapeHtml(c.name || ''); }).join(', ') + ')'
+        ? companions.length + '명 (' + companions.map(function (c) { return escapeHtml(formatCompanion(c)); }).join(', ') + ')'
         : '-';
       var siteLabel = r.interested_site ? (SITE_LABELS[r.interested_site] || r.interested_site) : '-';
       tr.innerHTML =
@@ -496,7 +504,7 @@
     rows.forEach(function (r) {
       var created = r.created_at ? new Date(r.created_at).toLocaleString('ko-KR') : '';
       var companions = Array.isArray(r.companions) ? r.companions : [];
-      var companionText = companions.map(function (c) { return c.name || ''; }).join(' / ');
+      var companionText = companions.map(formatCompanion).join(' / ');
       var siteLabel = r.interested_site ? (SITE_LABELS[r.interested_site] || r.interested_site) : '';
       var cells = [
         created, r.company, r.department || '', r.manager_name, r.position || '', r.phone, r.email,
